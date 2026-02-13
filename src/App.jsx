@@ -311,18 +311,11 @@ const allVideos = [
   { src: vidProduct2, title: 'Tech Product', cat: '3D Animation' },
 ];
 
-/* Lazy Video Component — only loads when visible */
-function LazyVideo({ src, title, cat, size = 'normal' }) {
+/* Video Component — videos are pre-cached by Preloader */
+function VideoItem({ src, title, cat, size = 'normal' }) {
   const ref = useRef(null);
   const vidRef = useRef(null);
-  const [isVisible, setIsVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-
-  useEffect(() => {
-    const obs = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) { setIsVisible(true); obs.disconnect(); } }, { threshold: 0.1, rootMargin: '100px' });
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
 
   useEffect(() => {
     if (!vidRef.current) return;
@@ -336,9 +329,7 @@ function LazyVideo({ src, title, cat, size = 'normal' }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {isVisible && (
-        <video ref={vidRef} src={src} muted loop playsInline preload="metadata" className="vgrid__video" />
-      )}
+      <video ref={vidRef} src={src} muted loop playsInline preload="auto" className="vgrid__video" />
       <div className={`vgrid__overlay ${isHovered ? 'vgrid__overlay--hide' : ''}`}>
         <span className="vgrid__cat">{cat}</span>
         <h4 className="vgrid__title">{title}</h4>
@@ -358,7 +349,7 @@ function VideoShowcase() {
   return (
     <div className="vgrid">
       {allVideos.map((v, i) => (
-        <LazyVideo key={i} {...v} size={sizeMap[i] || 'normal'} />
+        <VideoItem key={i} {...v} size={sizeMap[i] || 'normal'} />
       ))}
       {/* CTA card fills gap in the grid */}
       <div className="vgrid__cta">
@@ -436,7 +427,7 @@ function VideoCarousel() {
                 <div className="ccard__frame">
                   <video
                     src={item.video}
-                    autoPlay={isActive} muted loop playsInline
+                    autoPlay={isActive} muted loop playsInline preload="auto"
                     className="ccard__video"
                     ref={el => { if (el) { isActive ? el.play().catch(() => { }) : el.pause(); } }}
                   />

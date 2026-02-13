@@ -4,6 +4,8 @@ import FluidBackground from './components/FluidBackground';
 import Preloader from './components/Preloader';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Lenis from 'lenis';
+import 'lenis/dist/lenis.css';
 gsap.registerPlugin(ScrollTrigger);
 
 /* ========================================
@@ -464,6 +466,26 @@ export default function App() {
   const [activeTier, setActiveTier] = useState('standard');
   const [formData, setFormData] = useState({ name: '', email: '', brand: '', service: '', message: '' });
   const [expandTerms, setExpandTerms] = useState(false);
+
+  /* ===== LENIS SMOOTH SCROLLING ===== */
+  useEffect(() => {
+    if (!siteLoaded) return;
+    const lenis = new Lenis({
+      lerp: 0.1,
+      duration: 1.2,
+      smoothWheel: true,
+      wheelMultiplier: 0.8,
+      touchMultiplier: 1.5,
+      infinite: false,
+    });
+    // Sync Lenis with GSAP ScrollTrigger
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+    return () => {
+      lenis.destroy();
+    };
+  }, [siteLoaded]);
 
   const stdPkgs = [
     { type: 'Starter', price: '₹1,199', dur: '15 sec', features: ['Single character', 'Standard quality', 'Video link provided'], icon: <IconZap /> },

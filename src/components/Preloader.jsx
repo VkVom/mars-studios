@@ -1,52 +1,44 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import './Preloader.css';
 
-// Import only the carousel videos (visible first) for preloading
-// Grid videos are below the fold and can load lazily
+// Import ALL video files — every video must be cached before page reveals
+import vidFood from '../assets/Food&restauran.mp4';
+import vidKitchen from '../assets/Dr Kitchen.mp4';
+import vidCakes from '../assets/Lollino cakes - Trim.mp4';
+import vidProduct1 from '../assets/premium_product_animation .mp4';
+import vidProduct2 from '../assets/Productanimation2.mp4';
+import vidSuryamark from '../assets/Suryamark.mp4';
+import vidUGC from '../assets/ugc premium quality.mp4';
+import vidChicken from '../assets/chicken - Trim.mp4';
+import vidProductAnim from '../assets/product animation - Trim.mp4';
+import vidProductAnim2 from '../assets/product animation  - Trim.mp4';
 import vidNila from '../assets/Nila catering service - Trim.mp4';
 import vidStory from '../assets/premium(1 min)story telling.mp4';
 import vidVoiceover from '../assets/story telling with voiceover .mp4';
-import vidProduct1 from '../assets/premium_product_animation .mp4';
-import vidSuryamark from '../assets/Suryamark.mp4';
-import vidUGC from '../assets/ugc premium quality.mp4';
 
-// Only preload carousel videos (visible above/near fold)
-const CRITICAL_VIDEOS = [vidNila, vidStory, vidVoiceover, vidProduct1, vidSuryamark, vidUGC];
-
-// On mobile, preload even fewer videos (only first 3 carousel)
-const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-const VIDEOS_TO_PRELOAD = isMobile ? CRITICAL_VIDEOS.slice(0, 3) : CRITICAL_VIDEOS;
+const ALL_VIDEOS = [
+    vidFood, vidKitchen, vidCakes, vidProduct1, vidProduct2,
+    vidSuryamark, vidUGC, vidChicken, vidProductAnim, vidProductAnim2,
+    vidNila, vidStory, vidVoiceover,
+];
 
 /**
- * Lightweight video preloader — fetches just enough data to start playing.
- * Uses 'canplay' (not canplaythrough) for faster completion.
+ * Downloads a video into the browser's HTTP cache using fetch().
+ * This is lighter than creating <video> elements — it just downloads
+ * the file into cache. When a <video src="..."> later uses the same URL,
+ * the browser serves it from cache instantly.
  */
-function preloadVideo(src) {
-    return new Promise((resolve) => {
-        const video = document.createElement('video');
-        video.preload = 'auto';
-        video.muted = true;
-        video.playsInline = true;
-        video.src = src;
-
-        const done = () => {
-            video.removeEventListener('canplay', done);
-            video.removeEventListener('error', done);
-            resolve();
-        };
-
-        video.addEventListener('canplay', done, { once: true });
-        video.addEventListener('error', done, { once: true });
-        video.load();
-
-        // Shorter timeout — 4s max per video
-        setTimeout(done, 4000);
-    });
+function cacheVideo(src) {
+    return fetch(src, { mode: 'cors', credentials: 'same-origin' })
+        .then(() => { }) // we don't need the body, just cache it
+        .catch(() => { }); // never block on errors
 }
 
+const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
 /**
- * Lightweight Preloader — preloads critical videos + fonts.
- * Fast on mobile, comprehensive on desktop.
+ * Premium Preloader — fetches ALL videos into HTTP cache during loading.
+ * Page content is only revealed after every asset is ready.
  */
 export default function Preloader({ onComplete }) {
     const [progress, setProgress] = useState(0);
@@ -55,7 +47,7 @@ export default function Preloader({ onComplete }) {
     const startTime = useRef(Date.now());
 
     const preloadAssets = useCallback(async () => {
-        const totalAssets = VIDEOS_TO_PRELOAD.length + 1; // videos + fonts
+        const totalAssets = ALL_VIDEOS.length + 1; // videos + fonts
         let loaded = 0;
 
         const tick = () => {
@@ -64,18 +56,18 @@ export default function Preloader({ onComplete }) {
         };
 
         // 1. Fonts
-        const fontPromise = document.fonts.ready.then(tick);
+        document.fonts.ready.then(tick);
 
-        // 2. Critical videos only
-        const videoPromises = VIDEOS_TO_PRELOAD.map((src) =>
-            preloadVideo(src).then(tick)
+        // 2. Fetch ALL videos into browser HTTP cache (parallel)
+        const videoPromises = ALL_VIDEOS.map((src) =>
+            cacheVideo(src).then(tick)
         );
 
-        await Promise.all([fontPromise, ...videoPromises]);
+        await Promise.all(videoPromises);
 
-        // Minimum display time: 1.8s on mobile, 2.2s on desktop
+        // Minimum display time so animation plays nicely
         const elapsed = Date.now() - startTime.current;
-        const minTime = isMobile ? 1800 : 2200;
+        const minTime = isMobile ? 1500 : 2000;
         if (elapsed < minTime) {
             await new Promise((r) => setTimeout(r, minTime - elapsed));
         }
@@ -93,7 +85,7 @@ export default function Preloader({ onComplete }) {
                 setTimeout(() => {
                     setRemoved(true);
                     onComplete?.();
-                }, 700); // Faster exit
+                }, 700);
             }, 200);
         });
 
@@ -106,7 +98,6 @@ export default function Preloader({ onComplete }) {
         <div className={`preloader ${done ? 'preloader--done' : ''}`}>
             <div className="preloader__glow" />
 
-            {/* Fewer particles on mobile */}
             <div className="preloader__particles">
                 {Array.from({ length: isMobile ? 4 : 8 }, (_, i) => (
                     <div
@@ -131,24 +122,20 @@ export default function Preloader({ onComplete }) {
                             <stop offset="1" stopColor="#ff9a3c" />
                         </linearGradient>
                     </defs>
-                    <rect
-                        className="preloader__logo-path"
+                    <rect className="preloader__logo-path"
                         x="4" y="4" width="72" height="72" rx="18"
                         stroke="url(#preloader-grad)" strokeWidth="2" fill="none"
                     />
-                    <rect
-                        className="preloader__logo-fill"
+                    <rect className="preloader__logo-fill"
                         x="4" y="4" width="72" height="72" rx="18"
                         fill="url(#preloader-grad)"
                     />
-                    <path
-                        className="preloader__logo-path"
+                    <path className="preloader__logo-path"
                         d="M20 40L28 24L40 40L52 24L60 40"
                         stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
                         fill="none"
                     />
-                    <path
-                        className="preloader__logo-fill"
+                    <path className="preloader__logo-fill"
                         d="M20 52L40 36L60 52"
                         stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
                         fill="none" opacity="0.5"

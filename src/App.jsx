@@ -280,16 +280,113 @@ function FloatingKeywords() {
 }
 
 /* ========================================
-   CAROUSEL
+   CAROUSEL & VIDEO SHOWCASE
 ======================================== */
+import vidFood from './assets/Food&restauran.mp4';
+import vidKitchen from './assets/Dr Kitchen.mp4';
+import vidCakes from './assets/Lollino cakes - Trim.mp4';
+import vidProduct1 from './assets/premium_product_animation .mp4';
+import vidProduct2 from './assets/Productanimation2.mp4';
+import vidSuryamark from './assets/Suryamark.mp4';
+import vidUGC from './assets/ugc premium quality.mp4';
+import vidChicken from './assets/chicken - Trim.mp4';
+import vidProductAnim from './assets/product animation - Trim.mp4';
+import vidProductAnim2 from './assets/product animation  - Trim.mp4';
+import vidNila from './assets/Nila catering service - Trim.mp4';
+import vidStory from './assets/premium(1 min)story telling.mp4';
+import vidVoiceover from './assets/story telling with voiceover .mp4';
+
+/* Portfolio grid videos (10 items) */
+const allVideos = [
+  { src: vidProduct1, title: 'Premium Product', cat: '3D Animation' },
+  { src: vidFood, title: 'Spice Garden', cat: 'Food & Restaurant' },
+  { src: vidSuryamark, title: 'Suryamark', cat: 'Brand Story' },
+  { src: vidUGC, title: 'FitLife UGC', cat: 'UGC Ads' },
+  { src: vidCakes, title: 'Sweet Delights', cat: 'Commercial' },
+  { src: vidKitchen, title: 'Dr. Kitchen', cat: 'Social Media' },
+  { src: vidChicken, title: 'Crispy Bites', cat: 'Food Animation' },
+  { src: vidProductAnim, title: 'Product Reveal', cat: '3D Animation' },
+  { src: vidProductAnim2, title: 'Product Motion', cat: 'Product Showcase' },
+  { src: vidProduct2, title: 'Tech Product', cat: '3D Animation' },
+];
+
+/* Lazy Video Component — only loads when visible */
+function LazyVideo({ src, title, cat, size = 'normal' }) {
+  const ref = useRef(null);
+  const vidRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) { setIsVisible(true); obs.disconnect(); } }, { threshold: 0.1, rootMargin: '100px' });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!vidRef.current) return;
+    if (isHovered) vidRef.current.play().catch(() => { });
+    else { vidRef.current.pause(); vidRef.current.currentTime = 0; }
+  }, [isHovered]);
+
+  return (
+    <div ref={ref}
+      className={`vgrid__item vgrid__item--${size}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {isVisible && (
+        <video ref={vidRef} src={src} muted loop playsInline preload="metadata" className="vgrid__video" />
+      )}
+      <div className={`vgrid__overlay ${isHovered ? 'vgrid__overlay--hide' : ''}`}>
+        <span className="vgrid__cat">{cat}</span>
+        <h4 className="vgrid__title">{title}</h4>
+      </div>
+    </div>
+  );
+}
+
+function VideoShowcase() {
+  /* Size map for 10 items in a 4-col grid */
+  const sizeMap = {
+    0: 'large',  /* 2×2 — hero piece */
+    3: 'tall',   /* 1×2 */
+    5: 'large',  /* 2×2 — hero piece */
+    8: 'tall',   /* 1×2 */
+  };
+  return (
+    <div className="vgrid">
+      {allVideos.map((v, i) => (
+        <LazyVideo key={i} {...v} size={sizeMap[i] || 'normal'} />
+      ))}
+      {/* CTA card fills gap in the grid */}
+      <div className="vgrid__cta">
+        <div className="vgrid__cta-inner">
+          <span className="vgrid__cta-badge">✦ Next Project?</span>
+          <h3>Your Brand<br /><span className="text-gradient">Could Be Here</span></h3>
+          <p>Join 50+ brands who elevated their visuals with AI-powered video.</p>
+          <button className="btn-primary" onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}>
+            Start Your Project →
+          </button>
+        </div>
+      </div>
+      {/* Plus placeholder card */}
+      <div className="vgrid__plus" onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}>
+        <span className="vgrid__plus-icon">+</span>
+        <span className="vgrid__plus-label">Add Yours</span>
+      </div>
+    </div>
+  );
+}
+
 function VideoCarousel() {
   const items = [
-    { title: 'Luminous Skincare', cat: 'Product Animation', desc: 'Realistic 3D product animation with cinematic lighting.', grad: 'linear-gradient(160deg,#e8600a 0%,#f07c28 40%,#ff9a3c 100%)', dur: '30s', q: 'Ultra HD', img: '/images/skincare.svg' },
-    { title: 'Spice Garden', cat: 'Food Animation', desc: 'Mouth-watering food visuals with steam effects.', grad: 'linear-gradient(160deg,#d4520a 0%,#e8600a 40%,#f07c28 100%)', dur: '30s', q: 'Ultra HD', img: '/images/food.svg' },
-    { title: 'TechVault Launch', cat: 'Brand Story', desc: 'Epic product launch with voice-over narration.', grad: 'linear-gradient(160deg,#e8600a 0%,#ff9a3c 40%,#f07c28 100%)', dur: '60s', q: 'Ultra HD', img: '/images/tech.svg' },
-    { title: 'FitLife UGC', cat: 'UGC Ads', desc: 'Authentic UGC-style fitness ad.', grad: 'linear-gradient(160deg,#f07c28 0%,#e8600a 40%,#d4520a 100%)', dur: '30s', q: 'Ultra HD', img: '/images/fitness.svg' },
-    { title: 'Fashion Forward', cat: 'Social Ad', desc: 'Scroll-stopping fashion brand video.', grad: 'linear-gradient(160deg,#ff9a3c 0%,#e8600a 40%,#f07c28 100%)', dur: '15s', q: 'HD', img: '/images/fashion.svg' },
-    { title: 'CryptoVault', cat: 'Explainer', desc: 'Two-character explainer visual.', grad: 'linear-gradient(160deg,#e8600a 0%,#d4520a 40%,#ff9a3c 100%)', dur: '30s', q: 'HD', img: '/images/character.svg' },
+    { title: 'Nila Catering', cat: 'Catering', desc: 'Premium catering service showcase with elegant visuals.', grad: 'linear-gradient(160deg,#e8600a 0%,#f07c28 40%,#ff9a3c 100%)', dur: '30s', q: '4K', video: vidNila },
+    { title: 'Brand Story', cat: 'Storytelling', desc: 'Cinematic 1-minute brand narrative with premium visuals.', grad: 'linear-gradient(160deg,#d4520a 0%,#e8600a 40%,#f07c28 100%)', dur: '60s', q: 'Ultra HD', video: vidStory },
+    { title: 'Voice-Over Story', cat: 'Narration', desc: 'Professional voice-over storytelling for brand awareness.', grad: 'linear-gradient(160deg,#f07c28 0%,#ff9a3c 40%,#e8600a 100%)', dur: '45s', q: 'HD', video: vidVoiceover },
+    { title: 'Premium Product', cat: '3D Animation', desc: 'High-end 3D product showcase with cinematic lighting.', grad: 'linear-gradient(160deg,#e8600a 0%,#f07c28 40%,#ff9a3c 100%)', dur: '15s', q: 'Ultra HD', video: vidProduct1 },
+    { title: 'Suryamark', cat: 'Brand Story', desc: 'Corporate brand identity and storytelling.', grad: 'linear-gradient(160deg,#e8600a 0%,#ff9a3c 40%,#f07c28 100%)', dur: '60s', q: 'HD', video: vidSuryamark },
+    { title: 'FitLife UGC', cat: 'UGC Ads', desc: 'Authentic user-generated content for high conversion.', grad: 'linear-gradient(160deg,#f07c28 0%,#e8600a 40%,#d4520a 100%)', dur: '25s', q: '1080p', video: vidUGC },
   ];
   const [active, setActive] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -306,8 +403,9 @@ function VideoCarousel() {
   const next = useCallback(() => goTo(active + 1), [active, goTo]);
   const prev = useCallback(() => goTo(active - 1), [active, goTo]);
 
-  useEffect(() => { timerRef.current = setInterval(next, 4500); return () => clearInterval(timerRef.current); }, [next]);
-  const resetTimer = () => { clearInterval(timerRef.current); timerRef.current = setInterval(next, 4500); };
+  /* Update timing to 4000ms */
+  useEffect(() => { timerRef.current = setInterval(next, 4000); return () => clearInterval(timerRef.current); }, [next]);
+  const resetTimer = () => { clearInterval(timerRef.current); timerRef.current = setInterval(next, 4000); };
   const handleNext = () => { next(); resetTimer(); };
   const handlePrev = () => { prev(); resetTimer(); };
   const handleDot = (i) => { goTo(i); resetTimer(); };
@@ -328,17 +426,22 @@ function VideoCarousel() {
             return (
               <div key={i} className={`ccard ${isActive ? 'ccard--active' : ''}`}
                 style={{
-                  transform: `translateX(${pos * 240}px) translateZ(${-absPos * 180}px) rotateY(${pos * -20}deg)`,
+                  transform: `translateX(${pos * 260}px) translateZ(${-absPos * 180}px) rotateY(${pos * -20}deg)`,
                   zIndex: 10 - absPos, opacity: absPos > 2 ? 0 : isActive ? 1 : 0.6,
-                  filter: isActive ? 'none' : `blur(${absPos * 1.5}px) brightness(0.9)`,
+                  filter: isActive ? 'none' : `blur(${absPos * 2}px) grayscale(0.4)`,
                 }}
                 onClick={() => !isActive && handleDot(i)}
               >
-                <div className="ccard__frame" style={{ background: item.grad }}>
-                  <img src={item.img} className="ccard__img" alt={item.title} loading="lazy" />
-                  <div className="ccard__shimmer" />
+                <div className="ccard__frame">
+                  <video
+                    src={item.video}
+                    autoPlay={isActive} muted loop playsInline
+                    className="ccard__video"
+                    ref={el => { if (el) { isActive ? el.play().catch(() => { }) : el.pause(); } }}
+                  />
+                  {isActive && <div className="ccard__shimmer" />}
                 </div>
-                <div className="ccard__label"><h4>{item.title}</h4></div>
+                {isActive && <div className="ccard__label"><h4>{item.title}</h4></div>}
               </div>
             );
           })}
@@ -354,7 +457,7 @@ function VideoCarousel() {
         <button className="carousel__arrow" onClick={handleNext} aria-label="Next"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M6 3L11 8L6 13" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></button>
       </div>
       <div className="carousel__counter"><span className="carousel__counter-cur">{String(active + 1).padStart(2, '0')}</span><span className="carousel__counter-sep">/</span><span className="carousel__counter-tot">{String(total).padStart(2, '0')}</span></div>
-    </div>
+    </div >
   );
 }
 
@@ -473,13 +576,21 @@ export default function App() {
         </div>
       </section>
 
-      <section id="showcase" className="section" ref={showcaseRef}>
+      <section id="showcase" className="showcase-section" ref={showcaseRef}>
         <AmbientBlob color1="#e8600a" color2="#d4520a" size={500} top="20%" left="50%" />
         <div className="container showcase__header">
           <span className="section-label reveal">✦ Our Work</span>
           <h2 className="section-title reveal">Crafted with<br /><span className="text-gradient">Precision & Purpose</span></h2>
+          <p className="section-subtitle reveal">Every frame is engineered for impact. Hover to preview, click to explore.</p>
         </div>
         <VideoCarousel />
+        <div className="container">
+          <div className="vgrid-header">
+            <h3 className="section-title reveal">Full <span className="text-gradient">Portfolio</span></h3>
+            <p className="section-subtitle reveal">10 premium videos across 6 categories. Hover to preview any project.</p>
+          </div>
+          <VideoShowcase />
+        </div>
       </section>
 
 
@@ -545,8 +656,52 @@ export default function App() {
             </div>
           </div>
           <div className="terms reveal">
-            <button className="terms__toggle" onClick={() => setExpandTerms(!expandTerms)}><span>📋 Terms & Conditions</span><svg className={`terms__chev ${expandTerms ? 'terms__chev--open' : ''}`} width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor"><path d="M5 7L9 11L13 7" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></button>
-            <div className={`terms__body ${expandTerms ? 'terms__body--open' : ''}`}><ol><li>We do not create demo videos for trial purposes.</li><li>After the script is locked and video work is completed, any revisions will incur additional charges.</li><li>Work will begin only after advance payment. The advance is non-refundable.</li><li>Videos can be created in any ratio: Horizontal, Vertical, Square.</li><li>Additional charges apply for extra text, graphic animations, and costume changes.</li><li>After sending character and frame images for confirmation, work begins only after your approval.</li><li>Once completed, costume, properties, character style cannot be changed.</li><li>Modifying one character's appearance after completion requires the entire video to be recreated.</li><li>Additional work requested at final stages may incur extra charges.</li><li>A preview file will be provided. Final output delivered only after full payment.</li><li>AI videos have limitations in perfect realism. We deliver at the highest possible perfection level.</li><li>Charges may vary depending on rework extent.</li></ol></div>
+            <div className="terms__header">
+              <div className="terms__badge">📋</div>
+              <div>
+                <h3 className="terms__title">Terms & Conditions</h3>
+                <p className="terms__sub">Transparency in every project we deliver</p>
+              </div>
+              <button className="terms__toggle-btn" onClick={() => setExpandTerms(!expandTerms)}>
+                <span>{expandTerms ? 'Hide' : 'View All'}</span>
+                <svg className={`terms__chev ${expandTerms ? 'terms__chev--open' : ''}`} width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M4 6L8 10L12 6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </button>
+            </div>
+            <div className={`terms__body ${expandTerms ? 'terms__body--open' : ''}`}>
+              <div className="terms__grid">
+                <div className="terms__group">
+                  <div className="terms__group-icon">💰</div>
+                  <h4 className="terms__group-title">Payment & Pricing</h4>
+                  <ul className="terms__list">
+                    <li>Work begins only after advance payment. The advance is non-refundable.</li>
+                    <li>Additional charges apply for extra text, graphic animations, and costume changes.</li>
+                    <li>Charges may vary depending on rework extent.</li>
+                    <li>Final output delivered only after full payment.</li>
+                  </ul>
+                </div>
+                <div className="terms__group">
+                  <div className="terms__group-icon">🎬</div>
+                  <h4 className="terms__group-title">Production Process</h4>
+                  <ul className="terms__list">
+                    <li>We do not create demo videos for trial purposes.</li>
+                    <li>Videos can be created in any ratio: Horizontal, Vertical, Square.</li>
+                    <li>After sending character and frame images, work begins only after your approval.</li>
+                    <li>Once completed, costume, properties, character style cannot be changed.</li>
+                  </ul>
+                </div>
+                <div className="terms__group">
+                  <div className="terms__group-icon">📦</div>
+                  <h4 className="terms__group-title">Delivery & Revisions</h4>
+                  <ul className="terms__list">
+                    <li>After the script is locked, any revisions will incur additional charges.</li>
+                    <li>Modifying a character's appearance after completion requires full recreation.</li>
+                    <li>Additional work requested at final stages may incur extra charges.</li>
+                    <li>AI videos have limitations in perfect realism. We deliver at the highest possible level.</li>
+                  </ul>
+                </div>
+              </div>
+              <p className="terms__note">A preview file will be provided before final delivery for your review.</p>
+            </div>
           </div>
         </div>
       </section>

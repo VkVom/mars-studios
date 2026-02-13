@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react';
 import './App.css';
 import FluidBackground from './components/FluidBackground';
+import Preloader from './components/Preloader';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
@@ -465,6 +466,7 @@ function VideoCarousel() {
    MAIN APP
 ======================================== */
 export default function App() {
+  const [siteLoaded, setSiteLoaded] = useState(false);
   const { heroRef, aboutRef, servicesRef, showcaseRef, pricingRef, contactRef } = {
     heroRef: useReveal(), aboutRef: useReveal(), servicesRef: useReveal(), showcaseRef: useReveal(), pricingRef: useReveal(), contactRef: useReveal()
   };
@@ -489,6 +491,7 @@ export default function App() {
 
   return (
     <>
+      <Preloader onComplete={() => setSiteLoaded(true)} />
       <CursorGlow />
       <Navbar />
 

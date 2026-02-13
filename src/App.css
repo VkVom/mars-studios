@@ -2218,9 +2218,66 @@
 
 /* ---------- Small Tablet (≤ 768px) ---------- */
 @media (max-width: 768px) {
+
+  /* ===== PERFORMANCE: Kill heavy effects on mobile ===== */
+  .ambient-blob {
+    display: none !important;
+  }
+
+  .cursor-glow {
+    display: none !important;
+  }
+
+  .particle-canvas {
+    display: none;
+  }
+
+  .hero__grid {
+    display: none;
+  }
+
+  .hero__orb--1 {
+    width: 250px;
+    height: 250px;
+  }
+
+  .hero__orb--2 {
+    width: 200px;
+    height: 200px;
+  }
+
+  .hero__stats {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(255, 255, 255, 0.9);
+    gap: 1.5rem;
+    padding: 1rem 1.5rem;
+    border-radius: 20px;
+  }
+
+  .nav--scrolled::before {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .marquee-section {
+    overflow: hidden;
+  }
+
+  .marquee__inner {
+    overflow: hidden;
+  }
+
+  .floating-keywords {
+    display: none !important;
+  }
+
+  /* ===== OVERFLOW FIX ===== */
   .container {
     padding-inline: 1.5rem;
+    max-width: 100%;
   }
+
 
   /* ===== NAVIGATION ===== */
   .nav__links {

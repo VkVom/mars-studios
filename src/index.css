@@ -332,8 +332,9 @@ img {
 /* Scroll reveal */
 .reveal {
   opacity: 0;
-  transform: translateY(50px);
-  transition: opacity 0.9s var(--ease-smooth), transform 0.9s var(--ease-smooth);
+  transform: translateY(20px);
+  transition: opacity 0.6s var(--ease-smooth), transform 0.6s var(--ease-smooth);
+  will-change: opacity, transform;
 }
 
 .reveal.visible {
@@ -343,8 +344,9 @@ img {
 
 .reveal-left {
   opacity: 0;
-  transform: translateX(-50px);
-  transition: opacity 0.9s var(--ease-smooth), transform 0.9s var(--ease-smooth);
+  transform: translateX(-25px);
+  transition: opacity 0.6s var(--ease-smooth), transform 0.6s var(--ease-smooth);
+  will-change: opacity, transform;
 }
 
 .reveal-left.visible {
@@ -354,8 +356,9 @@ img {
 
 .reveal-right {
   opacity: 0;
-  transform: translateX(50px);
-  transition: opacity 0.9s var(--ease-smooth), transform 0.9s var(--ease-smooth);
+  transform: translateX(25px);
+  transition: opacity 0.6s var(--ease-smooth), transform 0.6s var(--ease-smooth);
+  will-change: opacity, transform;
 }
 
 .reveal-right.visible {
@@ -365,8 +368,9 @@ img {
 
 .reveal-scale {
   opacity: 0;
-  transform: scale(0.88);
-  transition: opacity 0.9s var(--ease-smooth), transform 0.9s var(--ease-smooth);
+  transform: scale(0.92);
+  transition: opacity 0.6s var(--ease-smooth), transform 0.6s var(--ease-smooth);
+  will-change: opacity, transform;
 }
 
 .reveal-scale.visible {
@@ -376,8 +380,9 @@ img {
 
 .stagger-children>* {
   opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.7s var(--ease-smooth), transform 0.7s var(--ease-smooth);
+  transform: translateY(15px);
+  transition: opacity 0.5s var(--ease-smooth), transform 0.5s var(--ease-smooth);
+  will-change: opacity, transform;
 }
 
 .stagger-children.visible>*:nth-child(1) {

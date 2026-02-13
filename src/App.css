@@ -2280,6 +2280,34 @@
     display: none !important;
   }
 
+  /* ===== HIDE FULL PORTFOLIO ON MOBILE (keep carousel only) ===== */
+  .vgrid-header {
+    display: none !important;
+  }
+
+  .vgrid {
+    display: none !important;
+  }
+
+  /* ===== REMOVE BACKDROP-FILTER ON MOBILE (GPU-heavy) ===== */
+  .about__card,
+  .svc-card,
+  .price-card,
+  .contact__form {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  /* ===== REDUCE SECTION SPACING ===== */
+  .section {
+    padding: 3rem 0;
+  }
+
+  .showcase-section {
+    padding: 3rem 0;
+  }
+
   /* ===== OVERFLOW FIX ===== */
   .container {
     padding-inline: 1.5rem;

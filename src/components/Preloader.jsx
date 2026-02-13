@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import './Preloader.css';
 
-// Import ALL video files — every video must be cached before page reveals
+// Import ALL video files for preloading
 import vidFood from '../assets/Food&restauran.mp4';
 import vidKitchen from '../assets/Dr Kitchen.mp4';
 import vidCakes from '../assets/Lollino cakes - Trim.mp4';
@@ -16,30 +16,28 @@ import vidNila from '../assets/Nila catering service - Trim.mp4';
 import vidStory from '../assets/premium(1 min)story telling.mp4';
 import vidVoiceover from '../assets/story telling with voiceover .mp4';
 
-const ALL_VIDEOS = [
-    vidFood, vidKitchen, vidCakes, vidProduct1, vidProduct2,
-    vidSuryamark, vidUGC, vidChicken, vidProductAnim, vidProductAnim2,
-    vidNila, vidStory, vidVoiceover,
-];
+// Carousel videos (shown on ALL screens)
+const CAROUSEL_VIDEOS = [vidNila, vidStory, vidVoiceover, vidProduct1, vidSuryamark, vidUGC];
 
-/**
- * Downloads a video into the browser's HTTP cache using fetch().
- * This is lighter than creating <video> elements — it just downloads
- * the file into cache. When a <video src="..."> later uses the same URL,
- * the browser serves it from cache instantly.
- */
-function cacheVideo(src) {
-    return fetch(src, { mode: 'cors', credentials: 'same-origin' })
-        .then(() => { }) // we don't need the body, just cache it
-        .catch(() => { }); // never block on errors
-}
+// Grid-only videos (hidden on mobile, only shown on desktop)
+const GRID_ONLY_VIDEOS = [vidFood, vidKitchen, vidCakes, vidProduct2, vidChicken, vidProductAnim, vidProductAnim2];
 
 const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
+// On mobile: only cache carousel videos (grid is hidden)
+// On desktop: cache everything
+const VIDEOS_TO_CACHE = isMobile ? CAROUSEL_VIDEOS : [...CAROUSEL_VIDEOS, ...GRID_ONLY_VIDEOS];
+
 /**
- * Premium Preloader — fetches ALL videos into HTTP cache during loading.
- * Page content is only revealed after every asset is ready.
+ * Fetches a video file into the browser HTTP cache.
+ * When <video src="..."> later uses the same URL, it loads from cache instantly.
  */
+function cacheVideo(src) {
+    return fetch(src, { mode: 'cors', credentials: 'same-origin' })
+        .then(() => { })
+        .catch(() => { });
+}
+
 export default function Preloader({ onComplete }) {
     const [progress, setProgress] = useState(0);
     const [done, setDone] = useState(false);
@@ -47,27 +45,25 @@ export default function Preloader({ onComplete }) {
     const startTime = useRef(Date.now());
 
     const preloadAssets = useCallback(async () => {
-        const totalAssets = ALL_VIDEOS.length + 1; // videos + fonts
+        const total = VIDEOS_TO_CACHE.length + 1;
         let loaded = 0;
-
         const tick = () => {
             loaded++;
-            setProgress(Math.min(Math.round((loaded / totalAssets) * 100), 99));
+            setProgress(Math.min(Math.round((loaded / total) * 100), 99));
         };
 
-        // 1. Fonts
+        // Fonts
         document.fonts.ready.then(tick);
 
-        // 2. Fetch ALL videos into browser HTTP cache (parallel)
-        const videoPromises = ALL_VIDEOS.map((src) =>
+        // Cache videos in parallel
+        const videoPromises = VIDEOS_TO_CACHE.map((src) =>
             cacheVideo(src).then(tick)
         );
-
         await Promise.all(videoPromises);
 
-        // Minimum display time so animation plays nicely
+        // Short min time so it doesn't feel stuck
         const elapsed = Date.now() - startTime.current;
-        const minTime = isMobile ? 1500 : 2000;
+        const minTime = isMobile ? 1200 : 1800;
         if (elapsed < minTime) {
             await new Promise((r) => setTimeout(r, minTime - elapsed));
         }
@@ -77,7 +73,6 @@ export default function Preloader({ onComplete }) {
 
     useEffect(() => {
         document.body.style.overflow = 'hidden';
-
         preloadAssets().then(() => {
             setTimeout(() => {
                 setDone(true);
@@ -85,10 +80,9 @@ export default function Preloader({ onComplete }) {
                 setTimeout(() => {
                     setRemoved(true);
                     onComplete?.();
-                }, 700);
-            }, 200);
+                }, 600);
+            }, 150);
         });
-
         return () => { document.body.style.overflow = ''; };
     }, [preloadAssets, onComplete]);
 
@@ -97,18 +91,15 @@ export default function Preloader({ onComplete }) {
     return (
         <div className={`preloader ${done ? 'preloader--done' : ''}`}>
             <div className="preloader__glow" />
-
             <div className="preloader__particles">
-                {Array.from({ length: isMobile ? 4 : 8 }, (_, i) => (
-                    <div
-                        key={i}
-                        className="preloader__particle"
+                {Array.from({ length: isMobile ? 3 : 6 }, (_, i) => (
+                    <div key={i} className="preloader__particle"
                         style={{
-                            left: `${10 + Math.random() * 80}%`,
-                            animationDuration: `${3 + Math.random() * 4}s`,
+                            left: `${15 + Math.random() * 70}%`,
+                            animationDuration: `${3 + Math.random() * 3}s`,
                             animationDelay: `${Math.random() * 2}s`,
-                            width: `${2 + Math.random() * 3}px`,
-                            height: `${2 + Math.random() * 3}px`,
+                            width: `${2 + Math.random() * 2}px`,
+                            height: `${2 + Math.random() * 2}px`,
                         }}
                     />
                 ))}
@@ -122,33 +113,22 @@ export default function Preloader({ onComplete }) {
                             <stop offset="1" stopColor="#ff9a3c" />
                         </linearGradient>
                     </defs>
-                    <rect className="preloader__logo-path"
-                        x="4" y="4" width="72" height="72" rx="18"
-                        stroke="url(#preloader-grad)" strokeWidth="2" fill="none"
-                    />
-                    <rect className="preloader__logo-fill"
-                        x="4" y="4" width="72" height="72" rx="18"
-                        fill="url(#preloader-grad)"
-                    />
-                    <path className="preloader__logo-path"
-                        d="M20 40L28 24L40 40L52 24L60 40"
+                    <rect className="preloader__logo-path" x="4" y="4" width="72" height="72" rx="18"
+                        stroke="url(#preloader-grad)" strokeWidth="2" fill="none" />
+                    <rect className="preloader__logo-fill" x="4" y="4" width="72" height="72" rx="18"
+                        fill="url(#preloader-grad)" />
+                    <path className="preloader__logo-path" d="M20 40L28 24L40 40L52 24L60 40"
+                        stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    <path className="preloader__logo-fill" d="M20 52L40 36L60 52"
                         stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
-                        fill="none"
-                    />
-                    <path className="preloader__logo-fill"
-                        d="M20 52L40 36L60 52"
-                        stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
-                        fill="none" opacity="0.5"
-                    />
+                        fill="none" opacity="0.5" />
                 </svg>
             </div>
 
             <div className="preloader__brand">Mars Media</div>
-
             <div className="preloader__progress">
                 <div className="preloader__bar" style={{ width: `${progress}%` }} />
             </div>
-
             <div className="preloader__percent">
                 {progress < 100 ? `${progress}%` : '✓'}
             </div>

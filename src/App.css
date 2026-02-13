@@ -2244,14 +2244,18 @@
     display: none;
   }
 
-  .hero__orb--1 {
-    width: 250px;
-    height: 250px;
+  .hero__orbs {
+    display: none !important;
   }
 
-  .hero__orb--2 {
-    width: 200px;
-    height: 200px;
+  .about__card-glow,
+  .svc-card__glow,
+  .ccard__shimmer {
+    display: none !important;
+  }
+
+  .hero__overlay {
+    display: none !important;
   }
 
   .hero__stats {

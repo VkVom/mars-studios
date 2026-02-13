@@ -47,9 +47,11 @@
 
 html {
   scroll-behavior: smooth;
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-accent-1) #f0f0ee;
+  scrollbar-width: none;
+  /* Firefox: hide scrollbar */
   overflow-x: clip;
+  -webkit-overflow-scrolling: touch;
+  /* smooth iOS scroll */
 }
 
 body {
@@ -68,17 +70,17 @@ body {
   overflow-x: hidden;
 }
 
+/* Hide scrollbar on all browsers */
+html::-webkit-scrollbar {
+  display: none;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
 ::-webkit-scrollbar {
-  width: 5px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f0f0ee;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-accent-1);
-  border-radius: 3px;
+  display: none;
 }
 
 h1,

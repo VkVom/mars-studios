@@ -311,11 +311,22 @@ const allVideos = [
   { src: vidProduct2, title: 'Tech Product', cat: '3D Animation' },
 ];
 
-/* Video Component — videos are pre-cached by Preloader */
+/* Grid Video — lazy-loaded only when visible to save bandwidth */
 function VideoItem({ src, title, cat, size = 'normal' }) {
   const ref = useRef(null);
   const vidRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setIsVisible(true); obs.disconnect(); }
+    }, { threshold: 0.05, rootMargin: '200px' });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!vidRef.current) return;
@@ -329,7 +340,14 @@ function VideoItem({ src, title, cat, size = 'normal' }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <video ref={vidRef} src={src} muted loop playsInline preload="auto" className="vgrid__video" />
+      {isVisible ? (
+        <video ref={vidRef} src={src} muted loop playsInline preload="none"
+          poster="" className="vgrid__video"
+          onLoadedData={(e) => { e.target.preload = 'auto'; }}
+        />
+      ) : (
+        <div className="vgrid__placeholder" />
+      )}
       <div className={`vgrid__overlay ${isHovered ? 'vgrid__overlay--hide' : ''}`}>
         <span className="vgrid__cat">{cat}</span>
         <h4 className="vgrid__title">{title}</h4>

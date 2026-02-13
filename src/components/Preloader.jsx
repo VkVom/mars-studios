@@ -1,30 +1,25 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import './Preloader.css';
 
-// Import all video files directly so we can preload them
-import vidFood from '../assets/Food&restauran.mp4';
-import vidKitchen from '../assets/Dr Kitchen.mp4';
-import vidCakes from '../assets/Lollino cakes - Trim.mp4';
-import vidProduct1 from '../assets/premium_product_animation .mp4';
-import vidProduct2 from '../assets/Productanimation2.mp4';
-import vidSuryamark from '../assets/Suryamark.mp4';
-import vidUGC from '../assets/ugc premium quality.mp4';
-import vidChicken from '../assets/chicken - Trim.mp4';
-import vidProductAnim from '../assets/product animation - Trim.mp4';
-import vidProductAnim2 from '../assets/product animation  - Trim.mp4';
+// Import only the carousel videos (visible first) for preloading
+// Grid videos are below the fold and can load lazily
 import vidNila from '../assets/Nila catering service - Trim.mp4';
 import vidStory from '../assets/premium(1 min)story telling.mp4';
 import vidVoiceover from '../assets/story telling with voiceover .mp4';
+import vidProduct1 from '../assets/premium_product_animation .mp4';
+import vidSuryamark from '../assets/Suryamark.mp4';
+import vidUGC from '../assets/ugc premium quality.mp4';
 
-const ALL_VIDEOS = [
-    vidFood, vidKitchen, vidCakes, vidProduct1, vidProduct2,
-    vidSuryamark, vidUGC, vidChicken, vidProductAnim, vidProductAnim2,
-    vidNila, vidStory, vidVoiceover,
-];
+// Only preload carousel videos (visible above/near fold)
+const CRITICAL_VIDEOS = [vidNila, vidStory, vidVoiceover, vidProduct1, vidSuryamark, vidUGC];
+
+// On mobile, preload even fewer videos (only first 3 carousel)
+const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+const VIDEOS_TO_PRELOAD = isMobile ? CRITICAL_VIDEOS.slice(0, 3) : CRITICAL_VIDEOS;
 
 /**
- * Preloads a single video by creating an off-screen <video> element
- * and waiting for it to buffer enough data to play.
+ * Lightweight video preloader — fetches just enough data to start playing.
+ * Uses 'canplay' (not canplaythrough) for faster completion.
  */
 function preloadVideo(src) {
     return new Promise((resolve) => {
@@ -34,36 +29,24 @@ function preloadVideo(src) {
         video.playsInline = true;
         video.src = src;
 
-        // Resolve when enough data is buffered to start playing
-        const onReady = () => {
-            cleanup();
+        const done = () => {
+            video.removeEventListener('canplay', done);
+            video.removeEventListener('error', done);
             resolve();
         };
 
-        const onError = () => {
-            cleanup();
-            resolve(); // Don't block on failures
-        };
-
-        const cleanup = () => {
-            video.removeEventListener('canplaythrough', onReady);
-            video.removeEventListener('error', onError);
-        };
-
-        video.addEventListener('canplaythrough', onReady, { once: true });
-        video.addEventListener('error', onError, { once: true });
-
-        // Force the browser to start buffering
+        video.addEventListener('canplay', done, { once: true });
+        video.addEventListener('error', done, { once: true });
         video.load();
 
-        // Safety timeout — don't block forever on huge videos (8s max per video)
-        setTimeout(onReady, 8000);
+        // Shorter timeout — 4s max per video
+        setTimeout(done, 4000);
     });
 }
 
 /**
- * Premium Preloader — preloads ALL fonts AND videos during loading animation.
- * Once everything is buffered, the site is revealed with a smooth exit.
+ * Lightweight Preloader — preloads critical videos + fonts.
+ * Fast on mobile, comprehensive on desktop.
  */
 export default function Preloader({ onComplete }) {
     const [progress, setProgress] = useState(0);
@@ -72,53 +55,27 @@ export default function Preloader({ onComplete }) {
     const startTime = useRef(Date.now());
 
     const preloadAssets = useCallback(async () => {
-        const totalAssets = ALL_VIDEOS.length + 2; // videos + fonts + images
+        const totalAssets = VIDEOS_TO_PRELOAD.length + 1; // videos + fonts
         let loaded = 0;
 
-        const updateProgress = () => {
+        const tick = () => {
             loaded++;
             setProgress(Math.min(Math.round((loaded / totalAssets) * 100), 99));
         };
 
-        // 1. Start preloading fonts
-        const fontPromise = document.fonts.ready.then(updateProgress);
+        // 1. Fonts
+        const fontPromise = document.fonts.ready.then(tick);
 
-        // 2. Preload ALL videos in parallel (the key optimization!)
-        const videoPromises = ALL_VIDEOS.map((src) =>
-            preloadVideo(src).then(updateProgress)
+        // 2. Critical videos only
+        const videoPromises = VIDEOS_TO_PRELOAD.map((src) =>
+            preloadVideo(src).then(tick)
         );
 
-        // 3. Preload any images already in the DOM
-        const imagePromise = new Promise((resolve) => {
-            const imgs = document.querySelectorAll('img[src]');
-            const unloaded = Array.from(imgs).filter((img) => !img.complete);
-            if (unloaded.length === 0) {
-                updateProgress();
-                resolve();
-                return;
-            }
-            let imgLoaded = 0;
-            unloaded.forEach((img) => {
-                const done = () => {
-                    imgLoaded++;
-                    if (imgLoaded >= unloaded.length) {
-                        updateProgress();
-                        resolve();
-                    }
-                };
-                img.addEventListener('load', done, { once: true });
-                img.addEventListener('error', done, { once: true });
-            });
-            // Safety timeout for images
-            setTimeout(() => { updateProgress(); resolve(); }, 5000);
-        });
+        await Promise.all([fontPromise, ...videoPromises]);
 
-        // Wait for everything
-        await Promise.all([fontPromise, ...videoPromises, imagePromise]);
-
-        // Ensure minimum display time for the animation (2.5s)
+        // Minimum display time: 1.8s on mobile, 2.2s on desktop
         const elapsed = Date.now() - startTime.current;
-        const minTime = 2500;
+        const minTime = isMobile ? 1800 : 2200;
         if (elapsed < minTime) {
             await new Promise((r) => setTimeout(r, minTime - elapsed));
         }
@@ -127,44 +84,38 @@ export default function Preloader({ onComplete }) {
     }, []);
 
     useEffect(() => {
-        // Prevent scroll during loading
         document.body.style.overflow = 'hidden';
 
         preloadAssets().then(() => {
-            // Small delay to show 100% before exit animation
             setTimeout(() => {
                 setDone(true);
                 document.body.style.overflow = '';
-                // Remove from DOM after exit animation completes
                 setTimeout(() => {
                     setRemoved(true);
                     onComplete?.();
-                }, 900);
-            }, 300);
+                }, 700); // Faster exit
+            }, 200);
         });
 
-        return () => {
-            document.body.style.overflow = '';
-        };
+        return () => { document.body.style.overflow = ''; };
     }, [preloadAssets, onComplete]);
 
     if (removed) return null;
 
     return (
         <div className={`preloader ${done ? 'preloader--done' : ''}`}>
-            {/* Ambient glow */}
             <div className="preloader__glow" />
 
-            {/* Floating particles */}
+            {/* Fewer particles on mobile */}
             <div className="preloader__particles">
-                {Array.from({ length: 8 }, (_, i) => (
+                {Array.from({ length: isMobile ? 4 : 8 }, (_, i) => (
                     <div
                         key={i}
                         className="preloader__particle"
                         style={{
                             left: `${10 + Math.random() * 80}%`,
                             animationDuration: `${3 + Math.random() * 4}s`,
-                            animationDelay: `${Math.random() * 3}s`,
+                            animationDelay: `${Math.random() * 2}s`,
                             width: `${2 + Math.random() * 3}px`,
                             height: `${2 + Math.random() * 3}px`,
                         }}
@@ -172,7 +123,6 @@ export default function Preloader({ onComplete }) {
                 ))}
             </div>
 
-            {/* Animated Logo */}
             <div className="preloader__logo">
                 <svg viewBox="0 0 80 80" fill="none">
                     <defs>
@@ -206,17 +156,14 @@ export default function Preloader({ onComplete }) {
                 </svg>
             </div>
 
-            {/* Brand name */}
             <div className="preloader__brand">Mars Media</div>
 
-            {/* Progress bar */}
             <div className="preloader__progress">
                 <div className="preloader__bar" style={{ width: `${progress}%` }} />
             </div>
 
-            {/* Status text */}
             <div className="preloader__percent">
-                {progress < 100 ? `Loading assets... ${progress}%` : 'Ready'}
+                {progress < 100 ? `${progress}%` : '✓'}
             </div>
         </div>
     );

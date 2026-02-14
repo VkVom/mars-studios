@@ -15,6 +15,8 @@
   z-index: 9999;
   mix-blend-mode: multiply;
   will-change: transform;
+  backface-visibility: hidden;
+  pointer-events: none;
 }
 
 @media (hover: none) {
@@ -31,7 +33,9 @@
   z-index: 0;
   animation: blob-float 12s ease-in-out infinite;
   filter: blur(90px);
-  will-change: transform;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 @keyframes blob-float {
@@ -2083,6 +2087,9 @@
   background: #0a0a0a;
   cursor: pointer;
   transition: transform 0.5s cubic-bezier(0.4, 0, 0, 1), box-shadow 0.5s ease;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 .vgrid__item:hover {

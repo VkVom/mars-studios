@@ -592,14 +592,13 @@ export default function App() {
     gsap.ticker.add((time) => lenis.raf(time * 1000));
     gsap.ticker.lagSmoothing(0);
 
-    // Refresh ScrollTrigger after a short delay once everything is rendered
-    const timer = setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 1000);
+    // Optimized refresh sequence: ensures layout is perfectly calculated as lazy assets settle
+    const refreshSequence = [1000, 2500, 5000];
+    const timers = refreshSequence.map(delay => setTimeout(() => ScrollTrigger.refresh(), delay));
 
     return () => {
       lenis.destroy();
-      clearTimeout(timer);
+      timers.forEach(clearTimeout);
     };
   }, [siteLoaded]);
 
@@ -688,7 +687,7 @@ export default function App() {
         </div>
       </section>
 
-      <section id="about" className="section" ref={aboutRef}>
+      <section id="about" className="section" ref={aboutRef} style={{ contentVisibility: 'auto' }}>
         <AmbientBlob color1="#e8600a" color2="#f07c28" size={500} top="-10%" right="-8%" />
         <div className="container">
           <div className="about__header">
@@ -715,7 +714,7 @@ export default function App() {
 
       <Marquee />
 
-      <section id="services" className="section" ref={servicesRef}>
+      <section id="services" className="section" ref={servicesRef} style={{ contentVisibility: 'auto' }}>
         <AmbientBlob color1="#f07c28" color2="#ff9a3c" size={450} top="15%" left="-6%" />
         <div className="container">
           <div className="services__header">

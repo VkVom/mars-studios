@@ -1,6 +1,6 @@
 /**
- * Video Compression — 720p, quality-preserving, low bitrate
- * CRF 30, 300kbps cap, 24fps, H.264, faststart, no audio
+ * Video Compression — 720p, CRF 32, 300kbps cap
+ * Maximum compression while preserving 720p clarity
  */
 import { execSync } from 'child_process';
 import { readdirSync, statSync, mkdirSync, existsSync, renameSync, unlinkSync } from 'fs';
@@ -12,7 +12,7 @@ const TEMP_DIR = join(process.cwd(), 'src', 'assets', '_compressed');
 if (!existsSync(TEMP_DIR)) mkdirSync(TEMP_DIR, { recursive: true });
 
 const videos = readdirSync(ASSETS_DIR).filter(f => f.endsWith('.mp4'));
-console.log(`\n🎬 Compressing ${videos.length} videos to 720p (quality + performance)...\n`);
+console.log(`\n🎬 Compressing ${videos.length} videos — 720p CRF32 300kbps...\n`);
 
 let totalOrig = 0, totalComp = 0;
 
@@ -26,14 +26,12 @@ for (const file of videos) {
         execSync(
             `"${ffmpegPath}" -i "${inp}" -y ` +
             `-vf "scale=-2:720" ` +
-            `-r 24 ` +
-            `-c:v libx264 ` +
+            `-r 24 -c:v libx264 ` +
             `-preset slow ` +
-            `-crf 30 ` +
-            `-maxrate 500k -bufsize 1000k ` +
+            `-crf 32 ` +
+            `-maxrate 300k -bufsize 600k ` +
             `-profile:v main -level 3.1 ` +
-            `-an ` +
-            `-movflags +faststart ` +
+            `-an -movflags +faststart ` +
             `-pix_fmt yuv420p ` +
             `-tune film ` +
             `"${out}"`,
@@ -49,7 +47,7 @@ for (const file of videos) {
 }
 
 console.log(`${'='.repeat(50)}`);
-console.log(`📊 Original: ${(totalOrig / 1024 / 1024).toFixed(2)} MB → Compressed: ${(totalComp / 1024 / 1024).toFixed(2)} MB (${((1 - totalComp / totalOrig) * 100).toFixed(0)}% saved)`);
+console.log(`📊 ${(totalOrig / 1024 / 1024).toFixed(1)} MB → ${(totalComp / 1024 / 1024).toFixed(2)} MB (${((1 - totalComp / totalOrig) * 100).toFixed(0)}% saved)`);
 console.log(`${'='.repeat(50)}\n`);
 
 console.log('🔄 Replacing...');

@@ -49,7 +49,7 @@ export default function Preloader({ onComplete }) {
         let loaded = 0;
         const tick = () => {
             loaded++;
-            setProgress(Math.min(Math.round((loaded / total) * 100), 99));
+            setProgress(Math.min(Math.round((loaded / total) * 100), 95));
         };
 
         // Fonts
@@ -61,12 +61,15 @@ export default function Preloader({ onComplete }) {
         );
         await Promise.all(videoPromises);
 
-        // Short min time so it doesn't feel stuck
+        // Hold the preloader long enough for the DOM to settle
         const elapsed = Date.now() - startTime.current;
-        const minTime = isMobile ? 1200 : 1800;
+        const minTime = isMobile ? 3500 : 2500;
         if (elapsed < minTime) {
             await new Promise((r) => setTimeout(r, minTime - elapsed));
         }
+
+        // Extra DOM settle time — let layout/paint finish
+        await new Promise((r) => setTimeout(r, 500));
 
         setProgress(100);
     }, []);

@@ -8,6 +8,8 @@ import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 gsap.registerPlugin(ScrollTrigger);
 
+const IS_MOBILE = typeof window !== 'undefined' && window.innerWidth < 768;
+
 /* ========================================
    SCROLL REVEAL HOOK
 ======================================== */
@@ -101,20 +103,22 @@ function Marquee() {
 function CursorGlow() {
   const glowRef = useRef(null);
   useEffect(() => {
+    if (IS_MOBILE) return; // No cursor on touch devices
     const glow = glowRef.current;
     if (!glow) return;
-    let x = 0, y = 0, cx = 0, cy = 0;
+    let x = 0, y = 0, cx = 0, cy = 0, raf;
     const onMove = (e) => { x = e.clientX; y = e.clientY; };
     const animate = () => {
       cx += (x - cx) * 0.08;
       cy += (y - cy) * 0.08;
       glow.style.transform = `translate(${cx - 200}px, ${cy - 200}px)`;
-      requestAnimationFrame(animate);
+      raf = requestAnimationFrame(animate);
     };
     window.addEventListener('mousemove', onMove, { passive: true });
-    requestAnimationFrame(animate);
-    return () => window.removeEventListener('mousemove', onMove);
+    raf = requestAnimationFrame(animate);
+    return () => { window.removeEventListener('mousemove', onMove); cancelAnimationFrame(raf); };
   }, []);
+  if (IS_MOBILE) return null;
   return <div ref={glowRef} className="cursor-glow" />;
 }
 
@@ -124,6 +128,7 @@ function CursorGlow() {
 function ParticleField({ count = 35 }) {
   const canvasRef = useRef(null);
   useEffect(() => {
+    if (IS_MOBILE) return; // Skip entirely on mobile
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -167,6 +172,7 @@ function ParticleField({ count = 35 }) {
     window.addEventListener('resize', () => { resize(); init(); });
     return () => cancelAnimationFrame(raf);
   }, [count]);
+  if (IS_MOBILE) return null;
   return <canvas ref={canvasRef} className="particle-canvas" />;
 }
 
@@ -467,18 +473,16 @@ export default function App() {
   const [formData, setFormData] = useState({ name: '', email: '', brand: '', service: '', message: '' });
   const [expandTerms, setExpandTerms] = useState(false);
 
-  /* ===== LENIS SMOOTH SCROLLING ===== */
+  /* ===== LENIS SMOOTH SCROLLING (desktop only) ===== */
   useEffect(() => {
-    if (!siteLoaded) return;
+    if (!siteLoaded || IS_MOBILE) return; // Native scroll is better on mobile
     const lenis = new Lenis({
       lerp: 0.1,
       duration: 1.2,
       smoothWheel: true,
       wheelMultiplier: 0.8,
-      touchMultiplier: 1.5,
       infinite: false,
     });
-    // Sync Lenis with GSAP ScrollTrigger
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add((time) => lenis.raf(time * 1000));
     gsap.ticker.lagSmoothing(0);

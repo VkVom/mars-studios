@@ -2538,6 +2538,42 @@
   /* ===== CAROUSEL ===== */
   .carousel {
     padding: 2rem 0;
+    position: relative;
+  }
+
+  /* Redesigned Mobile Navigation (Arrows Only) */
+  .carousel__nav {
+    position: absolute;
+    top: 200px;
+    /* Aligned with video center */
+    left: 0;
+    width: 100%;
+    justify-content: space-between !important;
+    padding: 0 1rem;
+    pointer-events: none;
+    z-index: 20;
+    gap: 0;
+  }
+
+  .carousel__indicators {
+    display: none !important;
+  }
+
+  .carousel__arrow {
+    pointer-events: auto;
+    width: 48px;
+    height: 48px;
+    background: white;
+    color: var(--color-accent-1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(232, 96, 10, 0.1);
+    display: flex !important;
+    opacity: 1;
+    margin: 0;
+  }
+
+  .carousel__arrow:active {
+    transform: scale(0.9);
   }
 
   .carousel__viewport {

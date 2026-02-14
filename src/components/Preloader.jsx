@@ -44,32 +44,27 @@ export default function Preloader({ onComplete }) {
     const [removed, setRemoved] = useState(false);
     const startTime = useRef(Date.now());
 
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setProgress(prev => {
+                if (prev >= 95) return 95;
+                return prev + Math.floor(Math.random() * 10) + 1;
+            });
+        }, 150);
+        return () => clearInterval(interval);
+    }, []);
+
     const preloadAssets = useCallback(async () => {
-        const total = VIDEOS_TO_CACHE.length + 1;
-        let loaded = 0;
-        const tick = () => {
-            loaded++;
-            setProgress(Math.min(Math.round((loaded / total) * 100), 95));
-        };
+        // Only wait for fonts and minimum timer
+        // We removed video pre-fetching because it was causing 15s lag on load
+        // The components now handle lazy-loading (preload="metadata") efficiently
+        const fontsPromise = document.fonts.ready;
+        const minTimePromise = new Promise((resolve) => {
+            const minTime = isMobile ? 2000 : 1500; // Reduced wait time slightly
+            setTimeout(resolve, minTime);
+        });
 
-        // Fonts
-        document.fonts.ready.then(tick);
-
-        // Cache videos in parallel
-        const videoPromises = VIDEOS_TO_CACHE.map((src) =>
-            cacheVideo(src).then(tick)
-        );
-        await Promise.all(videoPromises);
-
-        // Hold the preloader long enough for the DOM to settle
-        const elapsed = Date.now() - startTime.current;
-        const minTime = isMobile ? 3500 : 2500;
-        if (elapsed < minTime) {
-            await new Promise((r) => setTimeout(r, minTime - elapsed));
-        }
-
-        // Extra DOM settle time — let layout/paint finish
-        await new Promise((r) => setTimeout(r, 500));
+        await Promise.all([fontsPromise, minTimePromise]);
 
         setProgress(100);
     }, []);

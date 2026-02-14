@@ -13,9 +13,9 @@
   --color-accent-4: #d4520a;
   --color-accent-glow: rgba(232, 96, 10, 0.35);
 
-  --color-text-primary: #1a1a2e;
-  --color-text-secondary: rgba(26, 26, 46, 0.6);
-  --color-text-muted: rgba(26, 26, 46, 0.35);
+  --color-text-primary: #111122;
+  --color-text-secondary: rgba(17, 17, 34, 0.65);
+  --color-text-muted: rgba(17, 17, 34, 0.45);
   --color-border: rgba(26, 26, 46, 0.08);
   --color-border-hover: rgba(232, 96, 10, 0.3);
 
@@ -58,7 +58,8 @@ body {
   font-family: var(--font-body);
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
-  line-height: 1.6;
+  line-height: 1.7;
+  font-size: 1rem;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -90,7 +91,7 @@ h4,
 h5,
 h6 {
   font-family: var(--font-heading);
-  line-height: 1.08;
+  line-height: 1.12;
   letter-spacing: -0.02em;
   color: var(--color-text-primary);
 }
@@ -146,8 +147,8 @@ img {
   border: 1px solid rgba(232, 96, 10, 0.12);
   border-radius: 50px;
   font-family: var(--font-heading);
-  font-size: 0.78rem;
-  font-weight: 500;
+  font-size: 0.82rem;
+  font-weight: 600;
   color: var(--color-accent-1);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -162,10 +163,10 @@ img {
 }
 
 .section-subtitle {
-  font-size: clamp(1rem, 1.5vw, 1.1rem);
+  font-size: clamp(1.05rem, 1.5vw, 1.15rem);
   color: var(--color-text-secondary);
   max-width: 560px;
-  line-height: 1.75;
+  line-height: 1.8;
 }
 
 /* ===== BUTTONS ===== */
@@ -334,7 +335,6 @@ img {
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.6s var(--ease-smooth), transform 0.6s var(--ease-smooth);
-  will-change: opacity, transform;
 }
 
 .reveal.visible {
@@ -346,7 +346,6 @@ img {
   opacity: 0;
   transform: translateX(-25px);
   transition: opacity 0.6s var(--ease-smooth), transform 0.6s var(--ease-smooth);
-  will-change: opacity, transform;
 }
 
 .reveal-left.visible {
@@ -358,7 +357,6 @@ img {
   opacity: 0;
   transform: translateX(25px);
   transition: opacity 0.6s var(--ease-smooth), transform 0.6s var(--ease-smooth);
-  will-change: opacity, transform;
 }
 
 .reveal-right.visible {
@@ -370,7 +368,6 @@ img {
   opacity: 0;
   transform: scale(0.92);
   transition: opacity 0.6s var(--ease-smooth), transform 0.6s var(--ease-smooth);
-  will-change: opacity, transform;
 }
 
 .reveal-scale.visible {
@@ -382,7 +379,6 @@ img {
   opacity: 0;
   transform: translateY(15px);
   transition: opacity 0.5s var(--ease-smooth), transform 0.5s var(--ease-smooth);
-  will-change: opacity, transform;
 }
 
 .stagger-children.visible>*:nth-child(1) {

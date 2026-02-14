@@ -15,11 +15,18 @@ export default function FluidBackground() {
         let width, height;
         let particles = [];
         let animId;
+        let isVisible = true;
+        let resizeTimeout;
 
         const resize = () => {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
             initParticles();
+        };
+
+        const debouncedResize = () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(resize, 200);
         };
 
         const initParticles = () => {
@@ -38,6 +45,8 @@ export default function FluidBackground() {
         };
 
         const animate = () => {
+            if (!isVisible) return;
+
             ctx.clearRect(0, 0, width, height);
 
             const gradient = ctx.createLinearGradient(0, 0, width, height);
@@ -66,13 +75,26 @@ export default function FluidBackground() {
             animId = requestAnimationFrame(animate);
         };
 
-        window.addEventListener('resize', resize);
+        // Optimization: Pause when off-screen
+        const observer = new IntersectionObserver(([entry]) => {
+            isVisible = entry.isIntersecting;
+            if (isVisible) {
+                cancelAnimationFrame(animId);
+                animate();
+            } else {
+                cancelAnimationFrame(animId);
+            }
+        });
+        observer.observe(canvas);
+
         resize();
-        animate();
+        window.addEventListener('resize', debouncedResize);
 
         return () => {
-            window.removeEventListener('resize', resize);
+            window.removeEventListener('resize', debouncedResize);
+            clearTimeout(resizeTimeout);
             cancelAnimationFrame(animId);
+            observer.disconnect();
         };
     }, []);
 

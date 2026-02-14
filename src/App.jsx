@@ -103,7 +103,7 @@ function Marquee() {
 function CursorGlow() {
   const glowRef = useRef(null);
   useEffect(() => {
-    if (IS_MOBILE) return; // No cursor on touch devices
+    if (IS_MOBILE) return;
     const glow = glowRef.current;
     if (!glow) return;
     let x = 0, y = 0, cx = 0, cy = 0, raf;
@@ -114,9 +114,22 @@ function CursorGlow() {
       glow.style.transform = `translate(${cx - 200}px, ${cy - 200}px)`;
       raf = requestAnimationFrame(animate);
     };
+
+    // Optimization: Pause when tab is hidden
+    const onVisChange = () => {
+      if (document.hidden) cancelAnimationFrame(raf);
+      else raf = requestAnimationFrame(animate);
+    };
+
     window.addEventListener('mousemove', onMove, { passive: true });
+    document.addEventListener('visibilitychange', onVisChange);
     raf = requestAnimationFrame(animate);
-    return () => { window.removeEventListener('mousemove', onMove); cancelAnimationFrame(raf); };
+
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      document.removeEventListener('visibilitychange', onVisChange);
+      cancelAnimationFrame(raf);
+    };
   }, []);
   if (IS_MOBILE) return null;
   return <div ref={glowRef} className="cursor-glow" />;
@@ -128,14 +141,30 @@ function CursorGlow() {
 function ParticleField({ count = 35 }) {
   const canvasRef = useRef(null);
   useEffect(() => {
-    if (IS_MOBILE) return; // Skip entirely on mobile
+    if (IS_MOBILE) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    let raf, particles = [];
+    let raf;
+    let particles = [];
+    let isVisible = true;
+    let resizeTimeout;
+
     const w = () => canvas.offsetWidth;
     const h = () => canvas.offsetHeight;
-    const resize = () => { canvas.width = w() * devicePixelRatio; canvas.height = h() * devicePixelRatio; ctx.scale(devicePixelRatio, devicePixelRatio); };
+
+    const resize = () => {
+      canvas.width = w() * devicePixelRatio;
+      canvas.height = h() * devicePixelRatio;
+      ctx.scale(devicePixelRatio, devicePixelRatio);
+      init();
+    };
+
+    const debouncedResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(resize, 200);
+    };
+
     const init = () => {
       particles = Array.from({ length: count }, () => ({
         x: Math.random() * w(), y: Math.random() * h(),
@@ -143,9 +172,12 @@ function ParticleField({ count = 35 }) {
         o: Math.random() * 0.35 + 0.08, phase: Math.random() * Math.PI * 2
       }));
     };
+
     const draw = () => {
+      if (!isVisible) return; // Skip logic if off-screen
       ctx.clearRect(0, 0, w(), h());
       const t = performance.now() * 0.001;
+
       particles.forEach((p) => {
         p.x += p.dx; p.y += p.dy;
         if (p.x < 0) p.x = w(); if (p.x > w()) p.x = 0;
@@ -154,6 +186,7 @@ function ParticleField({ count = 35 }) {
         ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(232,96,10,${o})`; ctx.fill();
       });
+
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
@@ -168,9 +201,28 @@ function ParticleField({ count = 35 }) {
       }
       raf = requestAnimationFrame(draw);
     };
-    resize(); init(); draw();
-    window.addEventListener('resize', () => { resize(); init(); });
-    return () => cancelAnimationFrame(raf);
+
+    // Optimization: Only run loop when visible
+    const observer = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+      if (isVisible) {
+        cancelAnimationFrame(raf);
+        draw();
+      } else {
+        cancelAnimationFrame(raf);
+      }
+    });
+    observer.observe(canvas);
+
+    resize();
+    window.addEventListener('resize', debouncedResize);
+
+    return () => {
+      window.removeEventListener('resize', debouncedResize);
+      clearTimeout(resizeTimeout);
+      cancelAnimationFrame(raf);
+      observer.disconnect();
+    };
   }, [count]);
   if (IS_MOBILE) return null;
   return <canvas ref={canvasRef} className="particle-canvas" />;
@@ -217,7 +269,7 @@ function Navbar() {
   }, []);
 
   useEffect(() => {
-    const ids = ['hero', 'about', 'services', 'showcase', 'pricing', 'contact'];
+    const ids = ['hero', 'showcase', 'about', 'services', 'pricing', 'contact'];
     const obs = new IntersectionObserver(
       (entries) => entries.forEach((e) => { if (e.isIntersecting) setActiveSection(e.target.id); }),
       { threshold: 0.3, rootMargin: '-10% 0px -40% 0px' }
@@ -227,8 +279,8 @@ function Navbar() {
   }, []);
 
   const links = [
-    { id: 'hero', label: 'Home' }, { id: 'about', label: 'About' },
-    { id: 'services', label: 'Services' }, { id: 'showcase', label: 'Work' },
+    { id: 'hero', label: 'Home' }, { id: 'showcase', label: 'Work' },
+    { id: 'about', label: 'About' }, { id: 'services', label: 'Services' },
     { id: 'pricing', label: 'Pricing' }, { id: 'contact', label: 'Contact' },
   ];
   const scrollTo = (id) => { document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); setMobileOpen(false); };
@@ -337,7 +389,7 @@ function VideoItem({ src, title, cat, size = 'normal' }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <video ref={vidRef} src={src} muted loop playsInline preload="auto" className="vgrid__video" />
+      <video ref={vidRef} src={src} muted loop playsInline preload="metadata" className="vgrid__video" />
       <div className={`vgrid__overlay ${isHovered ? 'vgrid__overlay--hide' : ''}`}>
         <span className="vgrid__cat">{cat}</span>
         <h4 className="vgrid__title">{title}</h4>
@@ -403,8 +455,14 @@ function VideoCarousel() {
   const next = useCallback(() => goTo(active + 1), [active, goTo]);
   const prev = useCallback(() => goTo(active - 1), [active, goTo]);
 
-  /* Update timing to 4000ms */
-  useEffect(() => { timerRef.current = setInterval(next, 4000); return () => clearInterval(timerRef.current); }, [next]);
+  // Stable callback ref to prevent timer cascade
+  const nextRef = useRef(next);
+  useEffect(() => { nextRef.current = next; }, [next]);
+
+  useEffect(() => {
+    timerRef.current = setInterval(() => nextRef.current(), 4000);
+    return () => clearInterval(timerRef.current);
+  }, []); // Empty dependency array = stable timer
   const resetTimer = () => { clearInterval(timerRef.current); timerRef.current = setInterval(next, 4000); };
   const handleNext = () => { next(); resetTimer(); };
   const handlePrev = () => { prev(); resetTimer(); };
@@ -414,7 +472,7 @@ function VideoCarousel() {
 
   return (
     <div className="carousel">
-      <div className="carousel__glow" style={{ background: activeItem.grad, opacity: 0.12 }} />
+      {!IS_MOBILE && <div className="carousel__glow" style={{ background: activeItem.grad, opacity: 0.12 }} />}
       <div className="carousel__viewport">
         <div className="carousel__strip">
           {items.map((item, i) => {
@@ -423,6 +481,38 @@ function VideoCarousel() {
             if (pos < -total / 2) pos += total;
             const isActive = pos === 0;
             const absPos = Math.abs(pos);
+
+            // On mobile: simple 2D layout, NO blur, only render active+neighbors
+            if (IS_MOBILE) {
+              if (absPos > 1) return null; // Only render active + 1 neighbor each side
+              return (
+                <div key={i} className={`ccard ${isActive ? 'ccard--active' : ''}`}
+                  style={{
+                    transform: `translateX(${pos * 85}%)`,
+                    zIndex: isActive ? 10 : 5,
+                    opacity: isActive ? 1 : 0.3,
+                    transition: 'transform 0.4s ease, opacity 0.4s ease',
+                  }}
+                  onClick={() => !isActive && handleDot(i)}
+                >
+                  <div className="ccard__frame">
+                    {isActive ? (
+                      <video
+                        src={item.video}
+                        autoPlay muted loop playsInline
+                        preload="auto"
+                        className="ccard__video"
+                      />
+                    ) : (
+                      <div className="ccard__video" style={{ background: item.grad }} />
+                    )}
+                  </div>
+                  {isActive && <div className="ccard__label"><h4>{item.title}</h4></div>}
+                </div>
+              );
+            }
+
+            // Desktop: full 3D carousel
             return (
               <div key={i} className={`ccard ${isActive ? 'ccard--active' : ''}`}
                 style={{
@@ -435,7 +525,8 @@ function VideoCarousel() {
                 <div className="ccard__frame">
                   <video
                     src={item.video}
-                    autoPlay={isActive} muted loop playsInline preload="auto"
+                    autoPlay={isActive} muted loop playsInline
+                    preload={isActive ? "auto" : "none"}
                     className="ccard__video"
                     ref={el => { if (el) { isActive ? el.play().catch(() => { }) : el.pause(); } }}
                   />
@@ -469,7 +560,6 @@ export default function App() {
   const { heroRef, aboutRef, servicesRef, showcaseRef, pricingRef, contactRef } = {
     heroRef: useReveal(), aboutRef: useReveal(), servicesRef: useReveal(), showcaseRef: useReveal(), pricingRef: useReveal(), contactRef: useReveal()
   };
-  const [activeTier, setActiveTier] = useState('standard');
   const [formData, setFormData] = useState({ name: '', email: '', brand: '', service: '', message: '' });
   const [expandTerms, setExpandTerms] = useState(false);
 
@@ -491,11 +581,6 @@ export default function App() {
     };
   }, [siteLoaded]);
 
-  const stdPkgs = [
-    { type: 'Starter', price: '₹1,199', dur: '15 sec', features: ['Single character', 'Standard quality', 'Video link provided'], icon: <IconZap /> },
-    { type: 'Growth', price: '₹1,899', dur: '30 sec', features: ['Single character', 'Standard quality', 'Video link provided'], icon: <IconChart /> },
-    { type: 'Pro', price: '₹3,999', dur: '30 sec', features: ['2 characters', 'Conversation type', 'Video link provided'], popular: true, icon: <IconStar /> },
-  ];
   const prmPkgs = [
     { type: '3D Product', price: '₹5,499', dur: '30 sec', features: ['Realistic 3D animation', 'Ultra HD quality', 'Video link provided'], icon: <IconBox /> },
     { type: 'Food/Rest.', price: '₹5,999', dur: '30 sec', features: ['Food visuals', 'Ultra HD quality', 'Video link provided'], icon: <IconVideo /> },
@@ -520,6 +605,15 @@ export default function App() {
         <div className="hero__orbs"><div className="hero__orb hero__orb--1" /><div className="hero__orb hero__orb--2" /><div className="hero__orb hero__orb--3" /></div>
         <div className="hero__grid" />
         <FloatingKeywords />
+        {/* Creative decorative visuals */}
+        <div className="hero__visuals" aria-hidden="true">
+          <div className="hero__ring hero__ring--1" />
+          <div className="hero__ring hero__ring--2" />
+          <div className="hero__shape hero__shape--1" />
+          <div className="hero__shape hero__shape--2" />
+          <div className="hero__shape hero__shape--3" />
+          <div className="hero__glow-sphere" />
+        </div>
         <div className="container hero__content">
           <div className="hero__badge reveal"><span className="hero__badge-dot" />AI-Powered Video Production</div>
           <h1 className="hero__title reveal">
@@ -540,6 +634,23 @@ export default function App() {
           </div>
         </div>
         <div className="hero__scroll"><div className="hero__scroll-line" /><span>Scroll</span></div>
+      </section>
+
+      <section id="showcase" className="showcase-section" ref={showcaseRef}>
+        <AmbientBlob color1="#e8600a" color2="#d4520a" size={500} top="20%" left="50%" />
+        <div className="container showcase__header">
+          <span className="section-label reveal">✦ Our Work</span>
+          <h2 className="section-title reveal">Crafted with<br /><span className="text-gradient">Precision & Purpose</span></h2>
+          <p className="section-subtitle reveal">Every frame is engineered for impact. Hover to preview, click to explore.</p>
+        </div>
+        <VideoCarousel />
+        <div className="container">
+          <div className="vgrid-header">
+            <h3 className="section-title reveal">Full <span className="text-gradient">Portfolio</span></h3>
+            <p className="section-subtitle reveal">10 premium videos across 6 categories. Hover to preview any project.</p>
+          </div>
+          <VideoShowcase />
+        </div>
       </section>
 
       <section id="about" className="section" ref={aboutRef}>
@@ -596,23 +707,6 @@ export default function App() {
         </div>
       </section>
 
-      <section id="showcase" className="showcase-section" ref={showcaseRef}>
-        <AmbientBlob color1="#e8600a" color2="#d4520a" size={500} top="20%" left="50%" />
-        <div className="container showcase__header">
-          <span className="section-label reveal">✦ Our Work</span>
-          <h2 className="section-title reveal">Crafted with<br /><span className="text-gradient">Precision & Purpose</span></h2>
-          <p className="section-subtitle reveal">Every frame is engineered for impact. Hover to preview, click to explore.</p>
-        </div>
-        <VideoCarousel />
-        <div className="container">
-          <div className="vgrid-header">
-            <h3 className="section-title reveal">Full <span className="text-gradient">Portfolio</span></h3>
-            <p className="section-subtitle reveal">10 premium videos across 6 categories. Hover to preview any project.</p>
-          </div>
-          <VideoShowcase />
-        </div>
-      </section>
-
 
 
       <section id="pricing" className="section" ref={pricingRef}>
@@ -622,12 +716,8 @@ export default function App() {
             <span className="section-label reveal">✦ Pricing</span>
             <h2 className="section-title reveal">Transparent Pricing,<br /><span className="text-gradient">Premium Results</span></h2>
           </div>
-          <div className="pricing__toggle reveal">
-            <button className={`pricing__toggle-btn ${activeTier === 'standard' ? 'pricing__toggle-btn--active' : ''}`} onClick={() => setActiveTier('standard')}>Standard</button>
-            <button className={`pricing__toggle-btn ${activeTier === 'premium' ? 'pricing__toggle-btn--active' : ''}`} onClick={() => setActiveTier('premium')}>Premium</button>
-          </div>
-          <div className="pricing__cards" key={activeTier}>
-            {(activeTier === 'standard' ? stdPkgs : prmPkgs).map((pkg) => (
+          <div className="pricing__cards">
+            {prmPkgs.map((pkg) => (
               <div key={pkg.type} className={`price-card ${pkg.popular ? 'price-card--pop' : ''}`}>
                 {pkg.popular && <div className="price-card__badge">Most Popular</div>}
                 <div className="price-card__icon" style={{ color: 'var(--color-accent-1)' }}>{pkg.icon}</div>

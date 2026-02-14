@@ -44,6 +44,9 @@ const IconVideo = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="no
 const IconBox = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>;
 const IconUsers = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>;
 const IconInstagram = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>;
+const IconHome = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
+const IconPhone = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>;
+const IconWhatsApp = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>;
 
 /* ========================================
    GSAP MARQUEE COMPONENT
@@ -843,26 +846,74 @@ export default function App() {
         <div className="footer__glow" />
         <div className="container">
           <div className="footer__top">
-            <div className="footer__brand">
-              <button className="nav__logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                <svg viewBox="0 0 32 32" fill="none" width="34" height="34">
-                  <rect width="32" height="32" rx="8" fill="url(#flg)" />
-                  <path d="M8 16L12 8L16 16L20 8L24 16" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M8 22L16 14L24 22" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity=".5" />
-                  <defs><linearGradient id="flg" x1="0" y1="0" x2="32" y2="32"><stop stopColor="#e8600a" /><stop offset="1" stopColor="#ff9a3c" /></linearGradient></defs>
-                </svg>
-                <span className="nav__logo-text">MARS MEDIA</span>
-              </button>
-              <p>Crafting premium AI videos that elevate brands to extraordinary levels.</p>
+            {/* Column 1: Brand */}
+            <div className="footer__col">
+              <h4 className="footer__header">MARS MEDIA</h4>
+              <div className="footer__header-underline" />
+              <p className="footer__brand-desc">Crafting premium AI videos that elevate brands to extraordinary levels.</p>
             </div>
-            <div className="footer__cols">
-              <div className="footer__col"><h4>Navigate</h4>{['hero', 'about', 'services', 'showcase', 'pricing', 'contact'].map((id) => <button key={id} onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })}>{id.charAt(0).toUpperCase() + id.slice(1)}</button>)}</div>
-              <div className="footer__col"><h4>Services</h4><span>AI Video Ads</span><span>Product Animation</span><span>Brand Stories</span><span>UGC Content</span></div>
-              <div className="footer__col"><h4>Connect</h4><a href="mailto:hello@marsmedia.ai">hello@marsmedia.ai</a><a href="https://www.instagram.com/mars_media12?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer">Instagram</a><span>YouTube</span><span>LinkedIn</span></div>
+
+            {/* Column 2: Navigate */}
+            <div className="footer__col">
+              <h4 className="footer__header">NAVIGATE</h4>
+              <div className="footer__header-underline" />
+              <div className="footer__links">
+                {['hero', 'about', 'services', 'showcase', 'pricing', 'contact'].map((id) => (
+                  <button
+                    key={id}
+                    onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })}
+                  >
+                    {id.charAt(0).toUpperCase() + id.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Column 3: Services */}
+            <div className="footer__col">
+              <h4 className="footer__header">SERVICES</h4>
+              <div className="footer__header-underline" />
+              <div className="footer__links">
+                <span>AI Video Ads</span>
+                <span>Product Animation</span>
+                <span>Brand Stories</span>
+                <span>UGC Content</span>
+              </div>
+            </div>
+
+            {/* Column 4: Contact */}
+            <div className="footer__col">
+              <h4 className="footer__header">CONTACT</h4>
+              <div className="footer__header-underline" />
+              <div className="footer__contact-list">
+                <div className="footer__contact-item">
+                  <IconHome />
+                  <span>Global Digital Agency</span>
+                </div>
+                <div className="footer__contact-item">
+                  <IconMail />
+                  <a href="mailto:hello@marsmedia.ai">hello@marsmedia.ai</a>
+                </div>
+                <div className="footer__contact-item">
+                  <IconPhone />
+                  <span>+91 8590424194</span>
+                </div>
+                <div className="footer__contact-item">
+                  <IconWhatsApp />
+                  <a href="https://wa.me/918590424194" target="_blank" rel="noopener noreferrer">WhatsApp Chat</a>
+                </div>
+              </div>
             </div>
           </div>
           <div className="footer__divider" />
-          <div className="footer__bottom"><p>© {new Date().getFullYear()} MARS MEDIA. All rights reserved.</p></div>
+          <div className="footer__bottom">
+            <p>© {new Date().getFullYear()} MARS MEDIA. All rights reserved.</p>
+            <div className="footer__social-links">
+              <a href="https://www.instagram.com/mars_media12" target="_blank" rel="noopener noreferrer">Instagram</a>
+              <span>YouTube</span>
+              <span>LinkedIn</span>
+            </div>
+          </div>
         </div>
       </footer>
     </>

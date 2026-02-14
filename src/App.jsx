@@ -383,8 +383,22 @@ function VideoItem({ src, title, cat, size = 'normal' }) {
 
   useEffect(() => {
     if (!vidRef.current) return;
-    if (isHovered) vidRef.current.play().catch(() => { });
-    else { vidRef.current.pause(); vidRef.current.currentTime = 0; }
+    const el = vidRef.current;
+
+    // Lazy loading strategy: only preload metadata when near viewport
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) {
+        el.setAttribute('preload', 'metadata');
+        obs.disconnect();
+      }
+    }, { rootMargin: '20% 0px' });
+
+    obs.observe(ref.current);
+
+    if (isHovered) el.play().catch(() => { });
+    else { el.pause(); el.currentTime = 0; }
+
+    return () => obs.disconnect();
   }, [isHovered]);
 
   return (
@@ -393,7 +407,7 @@ function VideoItem({ src, title, cat, size = 'normal' }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <video ref={vidRef} src={src} muted loop playsInline preload="metadata" className="vgrid__video" />
+      <video ref={vidRef} src={src} muted loop playsInline preload="none" className="vgrid__video" />
       <div className={`vgrid__overlay ${isHovered ? 'vgrid__overlay--hide' : ''}`}>
         <span className="vgrid__cat">{cat}</span>
         <h4 className="vgrid__title">{title}</h4>
@@ -577,8 +591,15 @@ export default function App() {
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add((time) => lenis.raf(time * 1000));
     gsap.ticker.lagSmoothing(0);
+
+    // Refresh ScrollTrigger after a short delay once everything is rendered
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 1000);
+
     return () => {
       lenis.destroy();
+      clearTimeout(timer);
     };
   }, [siteLoaded]);
 
@@ -595,17 +616,16 @@ export default function App() {
   return (
     <>
       <Preloader onComplete={() => setSiteLoaded(true)} />
-      <CursorGlow />
+      {siteLoaded && <CursorGlow />}
       <Navbar />
-
 
       <section id="hero" className="hero" ref={heroRef}>
         <FluidBackground />
         <div className="hero__overlay" />
-        <ParticleField />
+        {siteLoaded && <ParticleField />}
         <div className="hero__orbs"><div className="hero__orb hero__orb--1" /><div className="hero__orb hero__orb--2" /><div className="hero__orb hero__orb--3" /></div>
         <div className="hero__grid" />
-        <FloatingKeywords />
+        {siteLoaded && <FloatingKeywords />}
         {/* Creative decorative visuals */}
         <div className="hero__visuals" aria-hidden="true">
           <div className="hero__ring hero__ring--1" />

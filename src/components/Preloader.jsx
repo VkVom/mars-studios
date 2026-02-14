@@ -60,7 +60,7 @@ export default function Preloader({ onComplete }) {
         // The components now handle lazy-loading (preload="metadata") efficiently
         const fontsPromise = document.fonts.ready;
         const minTimePromise = new Promise((resolve) => {
-            const minTime = isMobile ? 2000 : 1500; // Reduced wait time slightly
+            const minTime = isMobile ? 2500 : 3000; // Increased wait time for better thread stabilization
             setTimeout(resolve, minTime);
         });
 

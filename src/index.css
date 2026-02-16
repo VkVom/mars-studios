@@ -52,11 +52,9 @@ html {
   overflow-x: clip;
   -webkit-overflow-scrolling: touch;
   /* smooth iOS scroll */
-  overscroll-behavior: none;
 }
 
 body {
-  overscroll-behavior: none;
   font-family: var(--font-body);
   background: var(--color-bg-primary);
   color: var(--color-text-primary);

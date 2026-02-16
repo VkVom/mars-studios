@@ -104,6 +104,7 @@ export default function FluidBackground() {
             <div style={{
                 position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0,
                 background: 'linear-gradient(135deg, #fafaf8 0%, #fff 100%)',
+                pointerEvents: 'none'
             }} />
         );
     }
@@ -111,7 +112,7 @@ export default function FluidBackground() {
     return (
         <canvas
             ref={canvasRef}
-            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, pointerEvents: 'none' }}
         />
     );
 }

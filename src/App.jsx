@@ -276,7 +276,7 @@ function Navbar() {
     const ids = ['hero', 'showcase', 'about', 'services', 'pricing', 'contact'];
     const obs = new IntersectionObserver(
       (entries) => entries.forEach((e) => { if (e.isIntersecting) setActiveSection(e.target.id); }),
-      { threshold: 0.3, rootMargin: '-10% 0px -40% 0px' }
+      { threshold: 0.15, rootMargin: '-10% 0px -40% 0px' }
     );
     ids.forEach((id) => { const el = document.getElementById(id); if (el) obs.observe(el); });
     return () => obs.disconnect();
@@ -287,7 +287,7 @@ function Navbar() {
     { id: 'about', label: 'About' }, { id: 'services', label: 'Services' },
     { id: 'pricing', label: 'Pricing' }, { id: 'contact', label: 'Contact' },
   ];
-  const scrollTo = (id) => { document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); setMobileOpen(false); };
+  const scrollTo = (id) => { setActiveSection(id); document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); setMobileOpen(false); };
 
   return (
     <nav className={`nav ${scrolled ? 'nav--scrolled' : ''}`}>
@@ -360,6 +360,7 @@ import vidProductAnim2 from './assets/product animation  - Trim.mp4';
 import vidNila from './assets/Nila catering service - Trim.mp4';
 import vidStory from './assets/premium(1 min)story telling.mp4';
 import vidVoiceover from './assets/story telling with voiceover .mp4';
+import heroImg from './assets/hero-ai.png';
 
 /* Portfolio grid videos (10 items) */
 const allVideos = [
@@ -635,15 +636,21 @@ export default function App() {
           <div className="hero__glow-sphere" />
         </div>
         <div className="container hero__content">
-          <div className="hero__badge reveal"><span className="hero__badge-dot" />AI-Powered Video Production</div>
-          <h1 className="hero__title reveal">
-            We Create<span className="hero__title-accent"><span className="text-gradient"> Cinematic AI </span></span>Videos That<br />
-            <span className="hero__rotate"><span>Captivate</span><span>Convert</span><span>Inspire</span><span>Elevate</span></span>{' '}Your Brand
-          </h1>
-          <p className="hero__sub reveal">Premium AI video production transforming brand narratives into stunning visual experiences. No basic tools. Only excellence.</p>
-          <div className="hero__ctas reveal">
-            <button className="btn-primary" onClick={() => document.getElementById('showcase')?.scrollIntoView({ behavior: 'smooth' })}>View Our Work</button>
-            <button className="btn-outline" onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}>Explore Packages</button>
+          <div className="hero__col-text">
+            <div className="hero__badge reveal"><span className="hero__badge-dot" />AI-Powered Video Production</div>
+            <h1 className="hero__title reveal">
+              <span className="mobile-hidden">We Create </span><span className="text-gradient">Cinematic AI</span><br />
+              Videos That<br />
+              <span className="hero__rotate mobile-hidden"><span>Elevate</span><span>Captivate</span><span>Convert</span><span>Inspire</span></span><span className="desktop-hidden hero__highlight">Elevate</span> Your Brand
+            </h1>
+            <p className="hero__sub reveal">Premium AI video production transforming brand narratives into stunning visual experiences. No basic tools. Only excellence.</p>
+            <div className="hero__ctas reveal">
+              <button className="btn-primary" onClick={() => document.getElementById('showcase')?.scrollIntoView({ behavior: 'smooth' })}>View Our Work</button>
+              <button className="btn-outline" onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}>Explore Packages</button>
+            </div>
+          </div>
+          <div className="hero__col-visual reveal">
+            <img src={heroImg} className="hero__img-3d" alt="Creative AI" />
           </div>
           <div className="hero__stats reveal">
             <div className="hero__stat"><span className="hero__stat-num"><Counter target={200} suffix="+" /></span><span className="hero__stat-label">Videos Delivered</span></div>
@@ -663,6 +670,9 @@ export default function App() {
           <h2 className="section-title reveal">Crafted with<br /><span className="text-gradient">Precision & Purpose</span></h2>
           <p className="section-subtitle reveal">Every frame is engineered for impact. Hover to preview, click to explore.</p>
         </div>
+
+        {/* Mobile: Explicit "Watch Our Work" Header if needed, but existing header is good. 
+            Key change: Ensure Carousel is fully visible. */}
         <VideoCarousel />
 
         {/* Instagram CTA */}
@@ -733,7 +743,6 @@ export default function App() {
               <div key={i} className="svc-card" style={{ '--svc-color': s.color }}>
                 <div className="svc-card__emoji" style={{ color: s.color }}>{s.icon}</div>
                 <h3>{s.title}</h3><p>{s.desc}</p>
-                <button className="svc-card__link" onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}>View pricing →</button>
                 <div className="svc-card__glow" />
               </div>
             ))}
@@ -915,11 +924,11 @@ export default function App() {
                 </div>
                 <div className="footer__contact-item">
                   <IconPhone />
-                  <span>+91 8590424194</span>
+                  <span>+91 97458 13649</span>
                 </div>
                 <div className="footer__contact-item">
                   <IconWhatsApp />
-                  <a href="https://wa.me/918590424194" target="_blank" rel="noopener noreferrer">WhatsApp Chat</a>
+                  <a href="https://wa.me/919745813649" target="_blank" rel="noopener noreferrer">WhatsApp Chat</a>
                 </div>
               </div>
             </div>

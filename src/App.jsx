@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react';
 import './App.css';
+import marsLogo from './assets/mars-media-logo.png';
 import FluidBackground from './components/FluidBackground';
 import Preloader from './components/Preloader';
 import gsap from 'gsap';
@@ -47,6 +48,7 @@ const IconInstagram = () => <svg width="24" height="24" viewBox="0 0 24 24" fill
 const IconHome = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
 const IconPhone = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>;
 const IconWhatsApp = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>;
+const IconWhatsAppLarge = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>;
 
 /* ========================================
    GSAP MARQUEE COMPONENT
@@ -273,7 +275,7 @@ function Navbar() {
   }, []);
 
   useEffect(() => {
-    const ids = ['hero', 'showcase', 'about', 'services', 'pricing', 'contact'];
+    const ids = ['hero', 'showcase', 'about', 'services', 'contact'];
     const obs = new IntersectionObserver(
       (entries) => entries.forEach((e) => { if (e.isIntersecting) setActiveSection(e.target.id); }),
       { threshold: 0.15, rootMargin: '-10% 0px -40% 0px' }
@@ -285,7 +287,7 @@ function Navbar() {
   const links = [
     { id: 'hero', label: 'Home' }, { id: 'showcase', label: 'Work' },
     { id: 'about', label: 'About' }, { id: 'services', label: 'Services' },
-    { id: 'pricing', label: 'Pricing' }, { id: 'contact', label: 'Contact' },
+    { id: 'contact', label: 'Contact' },
   ];
   const scrollTo = (id) => { setActiveSection(id); document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); setMobileOpen(false); };
 
@@ -293,13 +295,7 @@ function Navbar() {
     <nav className={`nav ${scrolled ? 'nav--scrolled' : ''}`}>
       <div className="nav__inner">
         <button className="nav__logo" onClick={() => scrollTo('hero')}>
-          <svg viewBox="0 0 32 32" fill="none" width="32" height="32">
-            <rect width="32" height="32" rx="8" fill="url(#lg)" />
-            <path d="M8 16L12 8L16 16L20 8L24 16" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M8 22L16 14L24 22" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity=".5" />
-            <defs><linearGradient id="lg" x1="0" y1="0" x2="32" y2="32"><stop stopColor="#e8600a" /><stop offset="1" stopColor="#ff9a3c" /></linearGradient></defs>
-          </svg>
-          <span className="nav__logo-text">MARS MEDIA</span>
+          <img src={marsLogo} alt="Mars Media" className="nav__logo-img" />
         </button>
 
         <div className={`nav__links ${mobileOpen ? 'nav__links--open' : ''}`}>
@@ -529,12 +525,14 @@ function VideoCarousel() {
             }
 
             // Desktop: full 3D carousel
+            const scale = isActive ? 1.05 : 1;
+            const translateZ = isActive ? 40 : -absPos * 200;
             return (
               <div key={i} className={`ccard ${isActive ? 'ccard--active' : ''}`}
                 style={{
-                  transform: `translateX(${pos * 260}px) translateZ(${-absPos * 180}px) rotateY(${pos * -20}deg)`,
-                  zIndex: 10 - absPos, opacity: absPos > 2 ? 0 : isActive ? 1 : 0.6,
-                  filter: isActive ? 'none' : `blur(${absPos * 2}px) grayscale(0.4)`,
+                  transform: `translateX(${pos * 290}px) translateZ(${translateZ}px) rotateY(${pos * -22}deg) scale(${scale})`,
+                  zIndex: 10 - absPos, opacity: absPos > 2 ? 0 : isActive ? 1 : 0.5,
+                  filter: isActive ? 'drop-shadow(0 20px 40px rgba(232,96,10,0.2))' : `blur(${absPos * 1.5}px) brightness(0.6)`,
                 }}
                 onClick={() => !isActive && handleDot(i)}
               >
@@ -573,8 +571,8 @@ function VideoCarousel() {
 ======================================== */
 export default function App() {
   const [siteLoaded, setSiteLoaded] = useState(false);
-  const { heroRef, aboutRef, servicesRef, showcaseRef, pricingRef, contactRef } = {
-    heroRef: useReveal(), aboutRef: useReveal(), servicesRef: useReveal(), showcaseRef: useReveal(), pricingRef: useReveal(), contactRef: useReveal()
+  const { heroRef, aboutRef, servicesRef, showcaseRef, contactRef } = {
+    heroRef: useReveal(), aboutRef: useReveal(), servicesRef: useReveal(), showcaseRef: useReveal(), contactRef: useReveal()
   };
   const [formData, setFormData] = useState({ name: '', email: '', brand: '', service: '', message: '' });
   const [expandTerms, setExpandTerms] = useState(false);
@@ -603,15 +601,25 @@ export default function App() {
     };
   }, [siteLoaded]);
 
-  const prmPkgs = [
-    { type: '3D Product', price: '₹5,499', dur: '30 sec', features: ['Realistic 3D animation', 'Ultra HD quality', 'Video link provided'], icon: <IconBox /> },
-    { type: 'Food/Rest.', price: '₹5,999', dur: '30 sec', features: ['Food visuals', 'Ultra HD quality', 'Video link provided'], icon: <IconVideo /> },
-    { type: 'UGC Ads', price: '₹6,999', dur: '30 sec', features: ['Authentic UGC style', 'Prof. Voice-over', 'Video link provided'], popular: true, icon: <IconUsers /> },
-    { type: 'Brand Story', price: '₹9,999', dur: '45 sec', features: ['Visual storytelling', 'Brand awareness', 'Video link provided'], icon: <IconGlobe /> },
-    { type: 'Cinematic', price: '₹12,999', dur: '60 sec', features: ['Cinematic storytelling', 'No motion graphics', 'Video link provided'], icon: <IconPlay /> },
-  ];
 
-  const handleSubmit = (e) => { e.preventDefault(); alert('Thank you! We\'ll get back within 24 hours.'); };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const subject = encodeURIComponent(`New Inquiry from ${formData.name} - ${formData.brand || 'No Brand'}`);
+    const body = encodeURIComponent(`Name: ${formData.name}
+Email: ${formData.email}
+Brand: ${formData.brand || 'N/A'}
+Service Interested In: ${formData.service}
+
+Project Details:
+${formData.message}`);
+
+    window.location.href = `mailto:shahul5511@gmail.com?subject=${subject}&body=${body}`;
+
+    setTimeout(() => {
+      setFormData({ name: '', email: '', brand: '', service: '', message: '' });
+    }, 500);
+  };
 
   return (
     <>
@@ -646,7 +654,7 @@ export default function App() {
             <p className="hero__sub reveal">Premium AI video production transforming brand narratives into stunning visual experiences. No basic tools. Only excellence.</p>
             <div className="hero__ctas reveal">
               <button className="btn-primary" onClick={() => document.getElementById('showcase')?.scrollIntoView({ behavior: 'smooth' })}>View Our Work</button>
-              <button className="btn-outline" onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}>Explore Packages</button>
+              <button className="btn-outline" onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}>Start Project</button>
             </div>
           </div>
           <div className="hero__col-visual reveal">
@@ -752,32 +760,7 @@ export default function App() {
 
 
 
-      <section id="pricing" className="section" ref={pricingRef}>
-        <AmbientBlob color1="#e8600a" color2="#f07c28" size={350} bottom="-5%" right="-6%" />
-        <div className="container">
-          <div className="pricing__header">
-            <span className="section-label reveal">✦ Pricing</span>
-            <h2 className="section-title reveal">Transparent Pricing,<br /><span className="text-gradient">Premium Results</span></h2>
-          </div>
-          <div className="pricing__cards">
-            {prmPkgs.map((pkg) => (
-              <div key={pkg.type} className={`price-card ${pkg.popular ? 'price-card--pop' : ''}`}>
-                {pkg.popular && <div className="price-card__badge">Most Popular</div>}
-                <div className="price-card__icon" style={{ color: 'var(--color-accent-1)' }}>{pkg.icon}</div>
-                <span className="price-card__type">{pkg.type}</span>
-                <div className="price-card__price"><span>{pkg.price}</span><small>starting</small></div>
-                <span className="price-card__dur">{pkg.dur}</span>
-                <div className="price-card__line" />
-                <ul>
-                  {pkg.features.map((f, i) => <li key={i}><span className="price-card__check"><IconCheck /></span>{f}</li>)}
-                </ul>
-                <button className={pkg.popular ? 'btn-primary' : 'btn-outline'} onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })} style={{ width: '100%', justifyContent: 'center' }}>Get Started</button>
-              </div>
-            ))}
-          </div>
-          <div className="pricing__note reveal"><strong>💡 Note:</strong> Packages customizable to your budget. Extra charges for text, animations, costume changes, and late-stage additions.</div>
-        </div>
-      </section>
+
 
       <section id="contact" className="section" ref={contactRef}>
         <AmbientBlob color1="#e8600a" color2="#d4520a" size={400} top="20%" right="-8%" />
@@ -800,7 +783,8 @@ export default function App() {
             </form>
             <div className="contact__info reveal-right">
               {[
-                { icon: <IconMail />, title: 'Email Us', text: 'hello@marsmedia.ai' },
+                { icon: <IconMail />, title: 'Email Us', text: 'shahul5511@gmail.com' },
+                { icon: <IconWhatsAppLarge />, title: 'WhatsApp', text: '+91 9745813649', link: 'https://wa.me/919745813649' },
                 { icon: <IconInstagram />, title: 'Follow Us', text: '@mars_media12', link: 'https://www.instagram.com/mars_media12?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==' },
                 { icon: <IconClock />, title: 'Response Time', text: 'Within 24 hours' },
                 { icon: <IconGlobe />, title: 'Global Delivery', text: 'Clients worldwide' },
@@ -886,7 +870,7 @@ export default function App() {
               <h4 className="footer__header">NAVIGATE</h4>
               <div className="footer__header-underline" />
               <div className="footer__links">
-                {['hero', 'about', 'services', 'showcase', 'pricing', 'contact'].map((id) => (
+                {['hero', 'about', 'services', 'showcase', 'contact'].map((id) => (
                   <button
                     key={id}
                     onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })}
@@ -920,11 +904,11 @@ export default function App() {
                 </div>
                 <div className="footer__contact-item">
                   <IconMail />
-                  <a href="mailto:hello@marsmedia.ai">hello@marsmedia.ai</a>
+                  <a href="mailto:shahul5511@gmail.com">shahul5511@gmail.com</a>
                 </div>
                 <div className="footer__contact-item">
                   <IconPhone />
-                  <span>+91 97458 13649</span>
+                  <span>+91 9745813649</span>
                 </div>
                 <div className="footer__contact-item">
                   <IconWhatsApp />

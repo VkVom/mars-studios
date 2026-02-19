@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import './Footer.css';
+import marsLogo from '../assets/mars-media-logo.png';
 
 export default function Footer() {
     return (
@@ -9,18 +10,7 @@ export default function Footer() {
                 <div className="footer__top">
                     <div className="footer__brand">
                         <Link to="/" className="footer__logo">
-                            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="36" height="36">
-                                <rect width="32" height="32" rx="8" fill="url(#footer-logo-grad)" />
-                                <path d="M8 16L12 8L16 16L20 8L24 16" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                <path d="M8 22L16 14L24 22" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
-                                <defs>
-                                    <linearGradient id="footer-logo-grad" x1="0" y1="0" x2="32" y2="32">
-                                        <stop stopColor="#7c3aed" />
-                                        <stop offset="1" stopColor="#06b6d4" />
-                                    </linearGradient>
-                                </defs>
-                            </svg>
-                            <span>MARS MEDIA</span>
+                            <img src={marsLogo} alt="Mars Media" className="footer__logo-img" />
                         </Link>
                         <p className="footer__tagline">
                             Crafting premium AI-powered videos that elevate brands to extraordinary levels.
@@ -33,7 +23,6 @@ export default function Footer() {
                             <Link to="/">Home</Link>
                             <Link to="/services">Services</Link>
                             <Link to="/showcase">Showcase</Link>
-                            <Link to="/pricing">Pricing</Link>
                             <Link to="/contact">Contact</Link>
                         </div>
                         <div className="footer__col">
@@ -45,7 +34,7 @@ export default function Footer() {
                         </div>
                         <div className="footer__col">
                             <h4>Connect</h4>
-                            <a href="mailto:hello@intellex.ai">hello@intellex.ai</a>
+                            <a href="mailto:shahul5511@gmail.com">shahul5511@gmail.com</a>
                             <a href="#">Instagram</a>
                             <a href="#">YouTube</a>
                             <a href="#">LinkedIn</a>

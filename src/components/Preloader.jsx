@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import './Preloader.css';
+import marsLogo from '../assets/mars-media-logo.png';
 
 // Import ALL video files for preloading
 import vidFood from '../assets/Food&restauran.mp4';
@@ -104,23 +105,7 @@ export default function Preloader({ onComplete }) {
             </div>
 
             <div className="preloader__logo">
-                <svg viewBox="0 0 80 80" fill="none">
-                    <defs>
-                        <linearGradient id="preloader-grad" x1="0" y1="0" x2="80" y2="80">
-                            <stop stopColor="#e8600a" />
-                            <stop offset="1" stopColor="#ff9a3c" />
-                        </linearGradient>
-                    </defs>
-                    <rect className="preloader__logo-path" x="4" y="4" width="72" height="72" rx="18"
-                        stroke="url(#preloader-grad)" strokeWidth="2" fill="none" />
-                    <rect className="preloader__logo-fill" x="4" y="4" width="72" height="72" rx="18"
-                        fill="url(#preloader-grad)" />
-                    <path className="preloader__logo-path" d="M20 40L28 24L40 40L52 24L60 40"
-                        stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                    <path className="preloader__logo-fill" d="M20 52L40 36L60 52"
-                        stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
-                        fill="none" opacity="0.5" />
-                </svg>
+                <img src={marsLogo} alt="Mars Media" className="preloader__logo-img" />
             </div>
 
             <div className="preloader__brand">Mars Media</div>

@@ -35,7 +35,26 @@ export default function Contact() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        alert('Thank you for your inquiry! We will get back to you within 24 hours.');
+
+        // Construct email subject and body
+        const subject = encodeURIComponent(`New Inquiry from ${formData.name} - ${formData.brand || 'No Brand'}`);
+        const body = encodeURIComponent(`Name: ${formData.name}
+Email: ${formData.email}
+Brand: ${formData.brand || 'N/A'}
+Service Interested In: ${formData.service}
+Budget: ${formData.budget || 'N/A'}
+
+Project Details:
+${formData.message}`);
+
+        // Open default email client
+        window.location.href = `mailto:shahul5511@gmail.com?subject=${subject}&body=${body}`;
+
+        // Optional: clear form or show success message after a tiny delay
+        setTimeout(() => {
+            alert('Opening your email client to send the inquiry!');
+            setFormData({ name: '', email: '', brand: '', service: '', budget: '', message: '' });
+        }, 500);
     };
 
     return (
@@ -173,7 +192,7 @@ export default function Contact() {
                                     </svg>
                                 </div>
                                 <h4>Email Us</h4>
-                                <p>hello@intellex.ai</p>
+                                <p>shahul5511@gmail.com</p>
                             </div>
 
                             <div className="contact-info__card">

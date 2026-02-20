@@ -195,6 +195,9 @@
 
 /* --- Links with animated underline --- */
 .nav__links {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -313,6 +316,8 @@
 
   .nav__links {
     position: fixed;
+    left: 0;
+    transform: none;
     inset: 0;
     flex-direction: column;
     justify-content: center;
@@ -1042,7 +1047,8 @@
 .carousel__viewport {
   width: 100%;
   overflow: hidden;
-  padding: 1rem 0;
+  padding: 2rem 0;
+  perspective: 1000px;
 }
 
 .carousel__strip {
@@ -1804,16 +1810,15 @@
 
 .marquee__text {
   font-family: var(--font-display);
-  font-size: clamp(3rem, 7.5vw, 6rem);
-  /* Reduced to half size */
+  font-size: clamp(3.5rem, 8vw, 6rem);
   font-weight: 800;
   line-height: 1;
   text-transform: uppercase;
   white-space: nowrap;
   color: transparent;
-  -webkit-text-stroke: 1px #e8600a;
-  /* Thinner stroke for smaller text */
+  -webkit-text-stroke: 1.5px #e8600a;
   transition: all 0.3s;
+  padding: 0 0.5rem;
 }
 
 .marquee__text--filled {
@@ -1830,6 +1835,21 @@
   border-radius: 50%;
   border: 2px solid #e8600a;
   display: inline-block;
+}
+
+@media (max-width: 768px) {
+  .marquee-section {
+    transform: rotate(-2deg) scale(1.05);
+    padding: 3rem 0;
+    display: flex;
+    justify-content: flex-start;
+    overflow: hidden;
+  }
+
+  .marquee__inner {
+    animation: none;
+    transform: translateX(5vw);
+  }
 }
 
 /* ===== CAROUSEL ===== */

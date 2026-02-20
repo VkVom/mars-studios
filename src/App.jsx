@@ -50,12 +50,14 @@ const IconPhone = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="no
 const IconWhatsApp = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>;
 const IconWhatsAppLarge = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>;
 
+
 /* ========================================
    GSAP MARQUEE COMPONENT
    ======================================== */
 function Marquee() {
   const comp = useRef();
   useLayoutEffect(() => {
+    if (IS_MOBILE) return;
     let ctx = gsap.context(() => {
       gsap.to(".marquee__inner", {
         xPercent: -20,
@@ -497,42 +499,30 @@ function VideoCarousel() {
             const isActive = pos === 0;
             const absPos = Math.abs(pos);
 
-            // On mobile: simple 2D layout, NO blur, only render active+neighbors
-            if (IS_MOBILE) {
-              if (absPos > 1) return null; // Only render active + 1 neighbor each side
-              return (
-                <div key={i} className={`ccard ${isActive ? 'ccard--active' : ''}`}
-                  style={{
-                    transform: `translateX(${pos * 85}%)`,
-                    zIndex: isActive ? 10 : 5,
-                    opacity: isActive ? 1 : 0.3,
-                    transition: 'transform 0.4s ease, opacity 0.4s ease',
-                  }}
-                  onClick={() => !isActive && handleDot(i)}
-                >
-                  <div className="ccard__frame">
-                    <video
-                      src={item.video}
-                      autoPlay={isActive} muted loop playsInline
-                      preload={isActive ? "auto" : "metadata"}
-                      className="ccard__video"
-                      ref={el => { if (el) { isActive ? el.play().catch(() => { }) : el.pause(); } }}
-                    />
-                  </div>
-                  {isActive && <div className="ccard__label"><h4>{item.title}</h4></div>}
-                </div>
-              );
-            }
+            // Unified 3D Carousel for both Mobile and Desktop
+            // Calculate dynamic responsive values
+            const isNeighbor = absPos === 1;
+            const isMobileScale = IS_MOBILE ? 0.95 : 1.05; // Slightly smaller active scale on mobile
+            const scale = isActive ? isMobileScale : (IS_MOBILE ? 0.8 : 1);
 
-            // Desktop: full 3D carousel
-            const scale = isActive ? 1.05 : 1;
-            const translateZ = isActive ? 40 : -absPos * 200;
+            // Adjust depth and spacing for mobile screens vs desktop
+            const translateX = IS_MOBILE ? pos * 140 : pos * 290;
+            const translateZ = isActive ? (IS_MOBILE ? 20 : 40) : -absPos * (IS_MOBILE ? 120 : 200);
+            const rotateY = pos * (IS_MOBILE ? -15 : -22);
+
+            // Hide items too far away on mobile to maintain performance
+            if (IS_MOBILE && absPos > 1) return null;
+
             return (
               <div key={i} className={`ccard ${isActive ? 'ccard--active' : ''}`}
                 style={{
-                  transform: `translateX(${pos * 290}px) translateZ(${translateZ}px) rotateY(${pos * -22}deg) scale(${scale})`,
-                  zIndex: 10 - absPos, opacity: absPos > 2 ? 0 : isActive ? 1 : 0.5,
-                  filter: isActive ? 'drop-shadow(0 20px 40px rgba(232,96,10,0.2))' : `blur(${absPos * 1.5}px) brightness(0.6)`,
+                  transform: `translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`,
+                  zIndex: 10 - absPos,
+                  opacity: absPos > 2 ? 0 : isActive ? 1 : (IS_MOBILE ? 0.7 : 0.5),
+                  filter: isActive
+                    ? `drop-shadow(0 ${IS_MOBILE ? '10px 20px' : '20px 40px'} rgba(232,96,10,0.2))`
+                    : `blur(${IS_MOBILE ? absPos * 1 : absPos * 1.5}px) brightness(${IS_MOBILE ? 0.8 : 0.6})`,
+                  transition: 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease, filter 0.6s ease',
                 }}
                 onClick={() => !isActive && handleDot(i)}
               >

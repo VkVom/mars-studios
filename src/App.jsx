@@ -458,29 +458,33 @@ function VideoCarousel() {
     { title: 'FitLife UGC', cat: 'UGC Ads', desc: 'Authentic user-generated content for high conversion.', grad: 'linear-gradient(160deg,#f07c28 0%,#e8600a 40%,#d4520a 100%)', dur: '25s', q: '1080p', video: vidUGC },
   ];
   const [active, setActive] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const isTransitioning = useRef(false);
   const timerRef = useRef(null);
   const total = items.length;
 
-  const goTo = useCallback((idx) => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setActive(((idx % total) + total) % total);
-    setTimeout(() => setIsTransitioning(false), 550);
-  }, [isTransitioning, total]);
+  const goTo = useCallback((val) => {
+    if (isTransitioning.current) return;
+    isTransitioning.current = true;
+    setActive(prev => {
+      const nextIdx = typeof val === 'function' ? val(prev) : val;
+      return ((nextIdx % total) + total) % total;
+    });
+    setTimeout(() => { isTransitioning.current = false; }, 550);
+  }, [total]);
 
-  const next = useCallback(() => goTo(active + 1), [active, goTo]);
-  const prev = useCallback(() => goTo(active - 1), [active, goTo]);
-
-  // Stable callback ref to prevent timer cascade
-  const nextRef = useRef(next);
-  useEffect(() => { nextRef.current = next; }, [next]);
+  const next = useCallback(() => goTo(prev => prev + 1), [goTo]);
+  const prev = useCallback(() => goTo(prev => prev - 1), [goTo]);
 
   useEffect(() => {
-    timerRef.current = setInterval(() => nextRef.current(), 4000);
+    timerRef.current = setInterval(next, 4000);
     return () => clearInterval(timerRef.current);
-  }, []); // Empty dependency array = stable timer
-  const resetTimer = () => { clearInterval(timerRef.current); timerRef.current = setInterval(next, 4000); };
+  }, [next]);
+
+  const resetTimer = useCallback(() => {
+    clearInterval(timerRef.current);
+    timerRef.current = setInterval(next, 4000);
+  }, [next]);
+
   const handleNext = () => { next(); resetTimer(); };
   const handlePrev = () => { prev(); resetTimer(); };
   const handleDot = (i) => { goTo(i); resetTimer(); };

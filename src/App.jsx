@@ -787,7 +787,7 @@ ${formData.message}`);
                 { icon: <IconWhatsAppLarge />, title: 'WhatsApp', text: '+91 9745813649', link: 'https://wa.me/919745813649' },
                 { icon: <IconInstagram />, title: 'Follow Us', text: '@mars_media12', link: 'https://www.instagram.com/mars_media12?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==' },
                 { icon: <IconClock />, title: 'Response Time', text: 'Within 24 hours' },
-                { icon: <IconGlobe />, title: 'Global Delivery', text: 'Clients worldwide' },
+                { icon: <IconGlobe />, title: 'AI Ad Films', text: 'For Brands' },
               ].map((c, i) => (
                 <div key={i} className="contact__info-card">
                   <div className="contact__info-icon">{c.icon}</div>
@@ -900,7 +900,7 @@ ${formData.message}`);
               <div className="footer__contact-list">
                 <div className="footer__contact-item">
                   <IconHome />
-                  <span>Global Digital Agency</span>
+                  <span>AI Ad Films for Brands</span>
                 </div>
                 <div className="footer__contact-item">
                   <IconMail />

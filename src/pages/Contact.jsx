@@ -212,8 +212,8 @@ ${formData.message}`);
                                         <path d="M2 12H22M12 2C14.5013 4.73835 15.9228 8.29203 16 12C15.9228 15.708 14.5013 19.2616 12 22C9.49872 19.2616 8.07725 15.708 8 12C8.07725 8.29203 9.49872 4.73835 12 2Z" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
                                 </div>
-                                <h4>Global Delivery</h4>
-                                <p>We serve clients worldwide</p>
+                                <h4>AI Ad Films</h4>
+                                <p>For Brands</p>
                             </div>
                         </div>
                     </div>

@@ -1527,6 +1527,10 @@
     width: 100%;
     justify-content: center;
   }
+
+  .terms__body--open {
+    max-height: 2500px;
+  }
 }
 
 @media (max-width: 480px) {

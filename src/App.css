@@ -1694,7 +1694,8 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.85rem;
-  color: #444;
+  color: #a0a0a0;
+  /* High Contrast default */
 }
 
 .footer__social-links {
@@ -1704,11 +1705,13 @@
 
 .footer__social-links a,
 .footer__social-links span {
-  color: #444;
+  color: #ffffff;
+  /* Brighter high contrast for links */
   text-decoration: none;
   transition: color 0.3s;
   cursor: pointer;
   font-size: 0.85rem;
+  font-weight: 500;
 }
 
 .footer__social-links a:hover {
@@ -1774,6 +1777,12 @@
     flex-direction: column;
     gap: 1.5rem;
     text-align: center;
+  }
+
+  .footer__dev-link {
+    order: -1;
+    /* Push to top on mobile or arrange as needed, but we'll center it */
+    margin-bottom: 0.5rem;
   }
 
   .footer__social-links {

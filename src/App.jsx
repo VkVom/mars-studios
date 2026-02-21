@@ -913,7 +913,10 @@ ${formData.message}`);
           </div>
           <div className="footer__divider" />
           <div className="footer__bottom">
-            <p>© {new Date().getFullYear()} MARS MEDIA. All rights reserved.</p>
+            <p className="footer__copyright">© 2026 MARS MEDIA. All rights reserved.</p>
+            <a href="https://www.instagram.com/intellex.web" target="_blank" rel="noopener noreferrer" className="footer__dev-link" style={{ color: '#ffffff', textDecoration: 'none', fontWeight: 400, fontSize: '0.8rem', letterSpacing: '0.1em', opacity: 0.5, fontFamily: 'monospace', textTransform: 'uppercase' }}>
+              Meet the Developers
+            </a>
             <div className="footer__social-links">
               <a href="https://www.instagram.com/mars_media12" target="_blank" rel="noopener noreferrer">Instagram</a>
               <span>YouTube</span>
